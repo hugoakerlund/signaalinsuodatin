@@ -39,12 +39,13 @@ Työn ydin on Cooley–Tukey FFT-algoritmin toteuttaminen ja sen käyttäminen �
 
 ## Lähteet
 
-https://en.wikipedia.org/wiki/Fast_Fourier_transform
-
-https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm
-
-https://handwiki.org/wiki/Fast%20Fourier%20transform
+- https://en.wikipedia.org/wiki/Fast_Fourier_transform
+- https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm
+- https://en.wikipedia.org/wiki/Window_function
+- https://en.wikipedia.org/wiki/Hann_function
+- https://ccrma.stanford.edu/~jos/sasp/Example_1_Low_Pass_Filtering.html
+- https://ccrma.stanford.edu/~jos/mdft/Fast_Fourier_Transform_FFT.html
 
 ## Dokumentaatio
 
-Harjoitustyön ohjelmakoodi, muuttujat ja kommentit kirjoitetaan englanniksi. Dokumentaatio kirjoitetaan suomeksi.
+Harjoitustyön ohjelmakoodi, muuttujat ja funktiot kirjoitetaan englanniksi. Koodin dokumentointi (kommentit) ja muu dokumentaatio (määrittely-, toteutus- ja testausdokumentti sekä käyttöohje ja viikkoraportit) kirjoitetaan suomeksi.
