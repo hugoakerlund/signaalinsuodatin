@@ -1,4 +1,5 @@
 use signaalinsuodatin::fft;
+use num::complex::Complex;
 
 
 #[cfg(test)]
@@ -6,10 +7,53 @@ mod tests {
     use super::*;
 
     #[test]
-    pub fn tests_are_working() -> () {
-        let result: String = fft::test_function();
-        assert_eq!(result, "working!")
+    fn even_elements_are_collected() -> () {
+        let arr: Vec<Complex<f64>> = vec![
+            Complex::new(1.0, 0.0),
+            Complex::new(2.0, 0.0),
+            Complex::new(3.0, 0.0),
+            Complex::new(4.0, 0.0),
+            Complex::new(5.0, 0.0),
+            Complex::new(6.0, 0.0),
+            Complex::new(7.0, 0.0),
+            Complex::new(8.0, 0.0),
+        ];
+
+        let result = fft::get_even_elements(&arr);
+
+        let expected: Vec<Complex<f64>> = vec![
+            Complex::new(2.0, 0.0),
+            Complex::new(4.0, 0.0),
+            Complex::new(6.0, 0.0),
+            Complex::new(8.0, 0.0),
+        ];
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn odd_elements_are_collected() -> () {
+        let arr: Vec<Complex<f64>> = vec![
+            Complex::new(1.0, 0.0),
+            Complex::new(2.0, 0.0),
+            Complex::new(3.0, 0.0),
+            Complex::new(4.0, 0.0),
+            Complex::new(5.0, 0.0),
+            Complex::new(6.0, 0.0),
+            Complex::new(7.0, 0.0),
+            Complex::new(8.0, 0.0),
+        ];
+
+        let result = fft::get_odd_elements(&arr);
+
+        let expected: Vec<Complex<f64>> = vec![
+            Complex::new(1.0, 0.0),
+            Complex::new(3.0, 0.0),
+            Complex::new(5.0, 0.0),
+            Complex::new(7.0, 0.0),
+        ];
+
+        assert_eq!(result, expected);
     }
 
 }
-
