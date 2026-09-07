@@ -95,7 +95,7 @@ mod tests {
     fn nth_roots_of_unity_are_generated_correctly() -> () {
         let n: usize = 3;
 
-        let result: Vec<Complex<f64>> = fft::get_nth_roots_of_unity(n);
+        let result: Vec<Complex<f64>> = fft::gen_nth_roots_of_unity(n, false);
 
         let expected: Vec<Complex<f64>> = vec![
             Complex::new(1.0, 0.0),
@@ -105,5 +105,14 @@ mod tests {
 
         assert_eq!(result, expected);
 
+        let result2: Vec<Complex<f64>> = fft::gen_nth_roots_of_unity(n, true);
+
+        let expected2: Vec<Complex<f64>> = vec![
+            Complex::new(1.0, 0.0),
+            Complex::new(-0.5, -0.866025),
+            Complex::new(-0.5, 0.866025),
+        ];
+
+        assert_eq!(result2, expected2);
     }
 }
