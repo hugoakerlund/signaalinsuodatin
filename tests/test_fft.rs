@@ -1,10 +1,37 @@
 use signaalinsuodatin::fft;
 use num::complex::Complex;
+use signaalinsuodatin::fft::ROUND_TO_DECIMALS;
 
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn numbers_are_rounded_correctly() {
+        let numbers: Vec<f64> = vec![
+            0.80901699437495652,
+            2.23933693888498689,
+           10.89861345234871623,
+          -10.89861345234871623,
+           -2.23933693888498689,
+            0.80901699437495652,
+        ];
+
+        let expected: Vec<f64> = vec![
+            0.80901699437496,
+            2.23933693888499,
+           10.89861345234872,
+          -10.89861345234872,
+           -2.23933693888499,
+            0.80901699437496,
+        ];
+
+        for i in 0 .. numbers.len() {
+            let result = fft::round(numbers[i]);
+            assert_eq!(expected[i], result);
+        }
+    }
 
     #[test]
     fn even_elements_are_collected() -> () {

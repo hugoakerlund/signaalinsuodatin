@@ -1,6 +1,13 @@
 use std::f64::consts::PI;
 use num::complex::Complex;
 
+pub const ROUND_TO_DECIMALS: f64 = 10e13;
+
+pub fn round(num: f64) -> f64 {
+    let rounded: f64 = (num * ROUND_TO_DECIMALS).round();
+    return rounded / ROUND_TO_DECIMALS;
+}
+
 pub fn get_even_elements(arr: &Vec<Complex<f64>>) -> Vec<Complex<f64>> {
     let n = arr.len();
     let mut result: Vec<Complex<f64>> = arr.iter().step_by(2).copied().collect();
