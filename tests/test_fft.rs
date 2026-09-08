@@ -1,7 +1,5 @@
 use signaalinsuodatin::fft;
 use num::complex::Complex;
-use signaalinsuodatin::fft::ROUND_TO_DECIMALS;
-
 
 #[cfg(test)]
 mod tests {
@@ -160,53 +158,64 @@ mod tests {
 
     #[test]
     fn fft_is_working() -> () {
+
         let arr: Vec<Complex<f64>> = vec![
+            Complex::new(1.0, 0.0),
+            Complex::new(2.0, 0.0),
+        ];
+
+        let result: Vec<Complex<f64>> = fft::fft(arr);
+
+        let expected: Vec<Complex<f64>> = vec![
+            Complex::new(3.0, 0.0),
+            Complex::new(-1.0, 0.0),
+        ];
+
+        assert_eq!(result, expected);
+
+        let arr2: Vec<Complex<f64>> = vec![
             Complex::new(1.0, 0.0),
             Complex::new(2.0, 0.0),
             Complex::new(3.0, 0.0),
             Complex::new(4.0, 0.0),
         ];
 
-        let result: Vec<Complex<f64>> = fft::fft(arr);
+        let result2: Vec<Complex<f64>> = fft::fft(arr2);
 
-        let expected: Vec<Complex<f64>> = vec![
+        let expected2: Vec<Complex<f64>> = vec![
             Complex::new(10.0, 0.0),
             Complex::new(-2.0, 2.0),
             Complex::new(-2.0, 0.0),
             Complex::new(-2.0, -2.0),
         ];
 
-        assert_eq!(result, expected);
+        assert_eq!(result2, expected2);
 
-        // let arr2: Vec<Complex<f64>> = vec![
-        //     Complex::new(1.0, 0.0),
-        //     Complex::new(2.0, 0.0),
-        //     Complex::new(3.0, 0.0),
-        //     Complex::new(4.0, 0.0),
-        //     Complex::new(5.0, 0.0),
-        //     Complex::new(6.0, 0.0),
-        //     Complex::new(7.0, 0.0),
-        //     Complex::new(8.0, 0.0),
-        //     Complex::new(9.0, 0.0),
-        //     Complex::new(10.0, 0.0),
-        // ];
-        //
-        // let result2: Vec<Complex<f64>> = fft::fft(arr2);
-        //
-        // let expected2: Vec<Complex<f64>> = vec![
-        //     Complex::new(55.0, 0.0),
-        //     Complex::new(-5.0, 15.38841769),
-        //     Complex::new(-5.0, 6.8819096),
-        //     Complex::new(-5.0, 3.63271264),
-        //     Complex::new(-5.0, 1.62459848),
-        //     Complex::new(-5.0, 0.0),
-        //     Complex::new(-5.0, -1.62459848),
-        //     Complex::new(-5.0, -3.63271264),
-        //     Complex::new(-5.0, -6.8819096),
-        //     Complex::new(-5.0, -15.38841769),
-        // ];
-        //
-        // assert_eq!(result2, expected2);
+        let arr3: Vec<Complex<f64>> = vec![
+            Complex::new(1.0, 0.0),
+            Complex::new(2.0, 0.0),
+            Complex::new(3.0, 0.0),
+            Complex::new(4.0, 0.0),
+            Complex::new(5.0, 0.0),
+            Complex::new(6.0, 0.0),
+            Complex::new(7.0, 0.0),
+            Complex::new(8.0, 0.0),
+        ];
+
+        let result3: Vec<Complex<f64>> = fft::fft(arr3);
+
+        let expected3: Vec<Complex<f64>> = vec![
+            Complex::new(36.0,  0.0),
+            Complex::new(-4.0,  9.656854249492401),
+            Complex::new(-4.0,  4.0),
+            Complex::new(-4.0,  1.6568542494924001),
+            Complex::new(-4.0,  0.0),
+            Complex::new(-4.0, -1.6568542494924001),
+            Complex::new(-4.0, -4.0),
+            Complex::new(-4.0, -9.656854249492401),
+        ];
+
+        assert_eq!(result3, expected3);
     }
 
 
