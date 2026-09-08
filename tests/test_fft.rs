@@ -120,26 +120,94 @@ mod tests {
 
     #[test]
     fn nth_roots_of_unity_are_generated_correctly() -> () {
-        let n: usize = 3;
 
-        let result: Vec<Complex<f64>> = fft::gen_nth_roots_of_unity(n, false);
+        let expected_conjugate_roots: Vec<Complex<f64>> = vec![
+            Complex::new( 1.0, 0.0),
+            Complex::new( 0.80901699437495,  -0.58778525229247),
+            Complex::new( 0.30901699437495,  -0.95105651629515),
+            Complex::new(-0.30901699437495,  -0.95105651629515),
+            Complex::new(-0.80901699437495,  -0.58778525229247),
+            Complex::new(-1.0,                0.0),
+            Complex::new(-0.80901699437495,   0.58778525229247),
+            Complex::new(-0.30901699437495,   0.95105651629515),
+            Complex::new( 0.30901699437495,   0.95105651629515),
+            Complex::new( 0.80901699437495,   0.58778525229247),
+        ];
+
+        let expected_roots: Vec<Complex<f64>> = vec![
+            Complex::new( 1.0, 0.0),
+            Complex::new( 0.80901699437495,   0.58778525229247),
+            Complex::new( 0.30901699437495,   0.95105651629515),
+            Complex::new(-0.30901699437495,   0.95105651629515),
+            Complex::new(-0.80901699437495,   0.58778525229247),
+            Complex::new(-1.0,                0.0),
+            Complex::new(-0.80901699437495,  -0.58778525229247),
+            Complex::new(-0.30901699437495,  -0.95105651629515),
+            Complex::new( 0.30901699437495,  -0.95105651629515),
+            Complex::new( 0.80901699437495,  -0.58778525229247),
+        ];
+
+        let n = expected_roots.len();
+
+        for k in 0 .. n {
+            let nth_root_conjugate: Complex<f64> = fft::gen_nth_root_of_unity(k, n, true);
+            let nth_root: Complex<f64> = fft::gen_nth_root_of_unity(k, n, false);
+
+            assert_eq!(nth_root_conjugate, expected_conjugate_roots[k]);
+            assert_eq!(nth_root, expected_roots[k]);
+        }
+    }
+
+    #[test]
+    fn fft_is_working() -> () {
+        let arr: Vec<Complex<f64>> = vec![
+            Complex::new(1.0, 0.0),
+            Complex::new(2.0, 0.0),
+            Complex::new(3.0, 0.0),
+            Complex::new(4.0, 0.0),
+        ];
+
+        let result: Vec<Complex<f64>> = fft::fft(arr);
 
         let expected: Vec<Complex<f64>> = vec![
-            Complex::new(1.0, 0.0),
-            Complex::new(-0.5, 0.866025),
-            Complex::new(-0.5, -0.866025),
+            Complex::new(10.0, 0.0),
+            Complex::new(-2.0, 2.0),
+            Complex::new(-2.0, 0.0),
+            Complex::new(-2.0, -2.0),
         ];
 
         assert_eq!(result, expected);
 
-        let result2: Vec<Complex<f64>> = fft::gen_nth_roots_of_unity(n, true);
-
-        let expected2: Vec<Complex<f64>> = vec![
-            Complex::new(1.0, 0.0),
-            Complex::new(-0.5, -0.866025),
-            Complex::new(-0.5, 0.866025),
-        ];
-
-        assert_eq!(result2, expected2);
+        // let arr2: Vec<Complex<f64>> = vec![
+        //     Complex::new(1.0, 0.0),
+        //     Complex::new(2.0, 0.0),
+        //     Complex::new(3.0, 0.0),
+        //     Complex::new(4.0, 0.0),
+        //     Complex::new(5.0, 0.0),
+        //     Complex::new(6.0, 0.0),
+        //     Complex::new(7.0, 0.0),
+        //     Complex::new(8.0, 0.0),
+        //     Complex::new(9.0, 0.0),
+        //     Complex::new(10.0, 0.0),
+        // ];
+        //
+        // let result2: Vec<Complex<f64>> = fft::fft(arr2);
+        //
+        // let expected2: Vec<Complex<f64>> = vec![
+        //     Complex::new(55.0, 0.0),
+        //     Complex::new(-5.0, 15.38841769),
+        //     Complex::new(-5.0, 6.8819096),
+        //     Complex::new(-5.0, 3.63271264),
+        //     Complex::new(-5.0, 1.62459848),
+        //     Complex::new(-5.0, 0.0),
+        //     Complex::new(-5.0, -1.62459848),
+        //     Complex::new(-5.0, -3.63271264),
+        //     Complex::new(-5.0, -6.8819096),
+        //     Complex::new(-5.0, -15.38841769),
+        // ];
+        //
+        // assert_eq!(result2, expected2);
     }
+
+
 }
