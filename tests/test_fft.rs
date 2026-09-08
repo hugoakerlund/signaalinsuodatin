@@ -216,7 +216,26 @@ mod tests {
         ];
 
         assert_eq!(result3, expected3);
+
+
+        let n: usize = 64;
+        let mut arr4: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
+        for i in 0 .. n {
+            arr4[i] = Complex::new(i as f64, 0.0);
+        }
+
+        let result4: Vec<Complex<f64>> = fft::fft(arr4);
+
+        let first_element: Complex<f64> = result4[0];
+        let middle_element: Complex<f64> = result4[n / 2];
+
+        assert_eq!(first_element.im, 0.0);
+        assert_eq!(middle_element.im, 0.0);
+
+        for i in 1 .. n {
+            let left: Complex<f64> = result4[i];
+            let right: Complex<f64> = result4[n - i];
+            assert_eq!(left, right.conj());
+        }
     }
-
-
 }
