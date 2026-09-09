@@ -31,36 +31,44 @@ pub fn gen_nth_root_of_unity(k: usize, n: usize, conjugate: bool) -> Complex<f64
     result
 }
 
-pub fn fft(arr: Vec<Complex<f64>>) -> Vec<Complex<f64>> {
+pub fn fft(arr: Vec<Complex<f64>>, inverse: bool) -> Vec<Complex<f64>> {
     let n = arr.len();
 
     if n == 1 {
         return arr
     }
 
-    let even: Vec<Complex<f64>> = get_even_elements(&arr);
-    let odd: Vec<Complex<f64>> = get_odd_elements(&arr);
+    let even_elements: Vec<Complex<f64>> = get_even_elements(&arr);
+    let odd_elements: Vec<Complex<f64>> = get_odd_elements(&arr);
 
-    println!{"even {:?}", even};
-    println!{"odd {:?}", odd};
+    println!{"even {:?}", even_elements};
+    println!{"odd {:?}", odd_elements};
 
-    let e: Vec<Complex<f64>> = fft(even);
-    let o: Vec<Complex<f64>> = fft(odd);
+    let even: Vec<Complex<f64>> = fft(even_elements, inverse);
+    let odd: Vec<Complex<f64>> = fft(odd_elements, inverse);
 
 
     let mut combined: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
 
     for k in 0 .. (n / 2) {
 
-        let w: Complex<f64> = gen_nth_root_of_unity(k, n, true);
+        let root: Complex<f64> = gen_nth_root_of_unity(k, n, !inverse);
 
-        println!("\nw = {}", w);
+        println!("\nw = {}", root);
         println!("k = {}", k);
-        println!("even {}", e[k]);
-        println!("odd {}", o[k]);
+        println!("even {}", even[k]);
+        println!("odd {}", odd[k]);
 
-        combined[k] = e[k] + w * o[k];
-        combined[k + n / 2] = e[k] - w * o[k];
+        let mut first_half: Complex<f64> = even[k] + root * odd[k];
+        let mut second_half: Complex<f64> = even[k] - root * odd[k];
+
+        if inverse {
+            first_half *= Complex::<f64>::from(0.5);
+            second_half *= Complex::<f64>::from(0.5);
+        }
+
+        combined[k] = first_half;
+        combined[k + n / 2] = second_half;
     }
     combined
 }

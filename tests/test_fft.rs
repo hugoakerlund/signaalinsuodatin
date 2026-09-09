@@ -164,7 +164,7 @@ mod tests {
             Complex::new(2.0, 0.0),
         ];
 
-        let result: Vec<Complex<f64>> = fft::fft(arr);
+        let result: Vec<Complex<f64>> = fft::fft(arr, false);
 
         let expected: Vec<Complex<f64>> = vec![
             Complex::new(3.0, 0.0),
@@ -180,7 +180,7 @@ mod tests {
             Complex::new(4.0, 0.0),
         ];
 
-        let result2: Vec<Complex<f64>> = fft::fft(arr2);
+        let result2: Vec<Complex<f64>> = fft::fft(arr2, false);
 
         let expected2: Vec<Complex<f64>> = vec![
             Complex::new(10.0, 0.0),
@@ -202,7 +202,7 @@ mod tests {
             Complex::new(8.0, 0.0),
         ];
 
-        let result3: Vec<Complex<f64>> = fft::fft(arr3);
+        let result3: Vec<Complex<f64>> = fft::fft(arr3, false);
 
         let expected3: Vec<Complex<f64>> = vec![
             Complex::new(36.0,  0.0),
@@ -224,7 +224,7 @@ mod tests {
             arr4[i] = Complex::new(i as f64, 0.0);
         }
 
-        let result4: Vec<Complex<f64>> = fft::fft(arr4);
+        let result4: Vec<Complex<f64>> = fft::fft(arr4, false);
 
         let first_element: Complex<f64> = result4[0];
         let middle_element: Complex<f64> = result4[n / 2];
@@ -237,5 +237,41 @@ mod tests {
             let right: Complex<f64> = result4[n - i];
             assert_eq!(left, right.conj());
         }
+    }
+
+    #[test]
+    fn ifft_is_working() {
+
+        let arr: Vec<Complex<f64>> = vec![
+            Complex::new(3.0, 0.0),
+            Complex::new(-1.0, 0.0),
+        ];
+
+        let expected: Vec<Complex<f64>> = vec![
+            Complex::new(1.0, 0.0),
+            Complex::new(2.0, 0.0),
+        ];
+
+        let result: Vec<Complex<f64>> = fft::fft(arr, true);
+
+        assert_eq!(result, expected);
+
+        let arr2: Vec<Complex<f64>> = vec![
+            Complex::new(10.0, 0.0),
+            Complex::new(-2.0, 2.0),
+            Complex::new(-2.0, 0.0),
+            Complex::new(-2.0, -2.0),
+        ];
+
+        let expected2: Vec<Complex<f64>> = vec![
+            Complex::new(1.0, 0.0),
+            Complex::new(2.0, 0.0),
+            Complex::new(3.0, 0.0),
+            Complex::new(4.0, 0.0),
+        ];
+
+        let result2: Vec<Complex<f64>> = fft::fft(arr2, true);
+
+        assert_eq!(result2, expected2);
     }
 }
