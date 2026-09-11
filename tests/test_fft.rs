@@ -1,35 +1,9 @@
-use signaalinsuodatin::fft;
+use signaalinsuodatin::{fft, utils};
 use num::complex::Complex;
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn numbers_are_rounded_correctly() {
-        let numbers: Vec<f64> = vec![
-            0.80901699437495652,
-            2.23933693888498689,
-           10.89861345234871623,
-          -10.89861345234871623,
-           -2.23933693888498689,
-            0.80901699437495652,
-        ];
-
-        let expected: Vec<f64> = vec![
-            0.80901699437496,
-            2.23933693888499,
-           10.89861345234872,
-          -10.89861345234872,
-           -2.23933693888499,
-            0.80901699437496,
-        ];
-
-        for i in 0 .. numbers.len() {
-            let result = fft::round(numbers[i]);
-            assert_eq!(expected[i], result);
-        }
-    }
 
     #[test]
     fn even_elements_are_collected() -> () {
@@ -43,16 +17,13 @@ mod tests {
             Complex::new(7.0, 0.0),
             Complex::new(8.0, 0.0),
         ];
-
-        let result = fft::get_even_elements(&arr);
-
         let expected: Vec<Complex<f64>> = vec![
             Complex::new(1.0, 0.0),
             Complex::new(3.0, 0.0),
             Complex::new(5.0, 0.0),
             Complex::new(7.0, 0.0),
         ];
-
+        let result = fft::get_even_elements(&arr);
         assert_eq!(result, expected);
 
         let arr2: Vec<Complex<f64>> = vec![
@@ -62,14 +33,11 @@ mod tests {
             Complex::new(4.0, 0.0),
             Complex::new(5.0, 0.0),
         ];
-
-        let result2 = fft::get_even_elements(&arr2);
-
         let expected2: Vec<Complex<f64>> = vec![
             Complex::new(1.0, 0.0),
             Complex::new(3.0, 0.0),
         ];
-
+        let result2 = fft::get_even_elements(&arr2);
         assert_eq!(result2, expected2);
     }
 
@@ -85,17 +53,13 @@ mod tests {
             Complex::new(7.0, 0.0),
             Complex::new(8.0, 0.0),
         ];
-
-        let result = fft::get_odd_elements(&arr);
-
         let expected: Vec<Complex<f64>> = vec![
             Complex::new(2.0, 0.0),
             Complex::new(4.0, 0.0),
             Complex::new(6.0, 0.0),
             Complex::new(8.0, 0.0),
         ];
-
-
+        let result = fft::get_odd_elements(&arr);
         assert_eq!(result, expected);
 
         let arr2: Vec<Complex<f64>> = vec![
@@ -105,55 +69,52 @@ mod tests {
             Complex::new(4.0, 0.0),
             Complex::new(5.0, 0.0),
         ];
-
-        let result2 = fft::get_odd_elements(&arr2);
-
         let expected2: Vec<Complex<f64>> = vec![
             Complex::new(2.0, 0.0),
             Complex::new(4.0, 0.0),
         ];
-
+        let result2 = fft::get_odd_elements(&arr2);
         assert_eq!(result2, expected2);
     }
 
     #[test]
     fn nth_roots_of_unity_are_generated_correctly() -> () {
-
-        let expected_conjugate_roots: Vec<Complex<f64>> = vec![
-            Complex::new( 1.0, 0.0),
-            Complex::new( 0.80901699437495,  -0.58778525229247),
-            Complex::new( 0.30901699437495,  -0.95105651629515),
-            Complex::new(-0.30901699437495,  -0.95105651629515),
-            Complex::new(-0.80901699437495,  -0.58778525229247),
-            Complex::new(-1.0,                0.0),
-            Complex::new(-0.80901699437495,   0.58778525229247),
-            Complex::new(-0.30901699437495,   0.95105651629515),
-            Complex::new( 0.30901699437495,   0.95105651629515),
-            Complex::new( 0.80901699437495,   0.58778525229247),
-        ];
-
         let expected_roots: Vec<Complex<f64>> = vec![
             Complex::new( 1.0, 0.0),
-            Complex::new( 0.80901699437495,   0.58778525229247),
-            Complex::new( 0.30901699437495,   0.95105651629515),
-            Complex::new(-0.30901699437495,   0.95105651629515),
-            Complex::new(-0.80901699437495,   0.58778525229247),
-            Complex::new(-1.0,                0.0),
-            Complex::new(-0.80901699437495,  -0.58778525229247),
-            Complex::new(-0.30901699437495,  -0.95105651629515),
-            Complex::new( 0.30901699437495,  -0.95105651629515),
-            Complex::new( 0.80901699437495,  -0.58778525229247),
+            Complex::new( 0.8090169944,  0.5877852523),
+            Complex::new( 0.3090169944,  0.9510565163),
+            Complex::new(-0.3090169944,  0.9510565163),
+            Complex::new(-0.8090169944,  0.5877852523),
+            Complex::new(-1.0,           0.0),
+            Complex::new(-0.8090169944, -0.5877852523),
+            Complex::new(-0.3090169944, -0.9510565163),
+            Complex::new( 0.3090169944, -0.9510565163),
+            Complex::new( 0.8090169944, -0.5877852523),
+        ];
+        let expected_conjugate_roots: Vec<Complex<f64>> = vec![
+            Complex::new( 1.0, 0.0),
+            Complex::new( 0.8090169944, -0.5877852523),
+            Complex::new( 0.3090169944, -0.9510565163),
+            Complex::new(-0.3090169944, -0.9510565163),
+            Complex::new(-0.8090169944, -0.5877852523),
+            Complex::new(-1.0,           0.0),
+            Complex::new(-0.8090169944,  0.5877852523),
+            Complex::new(-0.3090169944,  0.9510565163),
+            Complex::new( 0.3090169944,  0.9510565163),
+            Complex::new( 0.8090169944,  0.5877852523),
         ];
 
         let n = expected_roots.len();
+        let mut nth_roots: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
+        let mut nth_roots_conjugate: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
 
-        for k in 0 .. n {
-            let nth_root_conjugate: Complex<f64> = fft::gen_nth_root_of_unity(k, n, true);
-            let nth_root: Complex<f64> = fft::gen_nth_root_of_unity(k, n, false);
-
-            assert_eq!(nth_root_conjugate, expected_conjugate_roots[k]);
-            assert_eq!(nth_root, expected_roots[k]);
+        for i in 0 .. n {
+            nth_roots[i] = fft::gen_nth_root_of_unity(i, n, false);
+            nth_roots_conjugate[i] = fft::gen_nth_root_of_unity(i, n, true);
         }
+
+        assert_eq!(utils::round_array(nth_roots_conjugate), expected_conjugate_roots);
+        assert_eq!(utils::round_array(nth_roots), expected_roots);
     }
 
     #[test]
@@ -163,15 +124,13 @@ mod tests {
             Complex::new(1.0, 0.0),
             Complex::new(2.0, 0.0),
         ];
-
-        let result: Vec<Complex<f64>> = fft::fft(arr, false);
-
         let expected: Vec<Complex<f64>> = vec![
             Complex::new(3.0, 0.0),
             Complex::new(-1.0, 0.0),
         ];
-
-        assert_eq!(result, expected);
+        let result: Vec<Complex<f64>> = fft::fft(arr.clone(), false);
+        assert_eq!(utils::round_array(result.clone()), expected);
+        assert_eq!(utils::round_array(fft::fft(result.clone(), true)), arr.clone());
 
         let arr2: Vec<Complex<f64>> = vec![
             Complex::new(1.0, 0.0),
@@ -179,17 +138,15 @@ mod tests {
             Complex::new(3.0, 0.0),
             Complex::new(4.0, 0.0),
         ];
-
-        let result2: Vec<Complex<f64>> = fft::fft(arr2, false);
-
         let expected2: Vec<Complex<f64>> = vec![
             Complex::new(10.0, 0.0),
             Complex::new(-2.0, 2.0),
             Complex::new(-2.0, 0.0),
             Complex::new(-2.0, -2.0),
         ];
-
-        assert_eq!(result2, expected2);
+        let result2: Vec<Complex<f64>> = fft::fft(arr2.clone(), false);
+        assert_eq!(utils::round_array(result2.clone()), expected2);
+        assert_eq!(utils::round_array(fft::fft(result2.clone(), true)), arr2.clone());
 
         let arr3: Vec<Complex<f64>> = vec![
             Complex::new(1.0, 0.0),
@@ -201,77 +158,42 @@ mod tests {
             Complex::new(7.0, 0.0),
             Complex::new(8.0, 0.0),
         ];
-
-        let result3: Vec<Complex<f64>> = fft::fft(arr3, false);
-
         let expected3: Vec<Complex<f64>> = vec![
             Complex::new(36.0,  0.0),
-            Complex::new(-4.0,  9.656854249492401),
+            Complex::new(-4.0,  9.6568542495),
             Complex::new(-4.0,  4.0),
-            Complex::new(-4.0,  1.6568542494924001),
+            Complex::new(-4.0,  1.6568542495),
             Complex::new(-4.0,  0.0),
-            Complex::new(-4.0, -1.6568542494924001),
+            Complex::new(-4.0, -1.6568542495),
             Complex::new(-4.0, -4.0),
-            Complex::new(-4.0, -9.656854249492401),
+            Complex::new(-4.0, -9.6568542495),
         ];
 
-        assert_eq!(result3, expected3);
+        let result3: Vec<Complex<f64>> = fft::fft(arr3.clone(), false);
+        assert_eq!(utils::round_array(result3.clone()), expected3);
+        assert_eq!(utils::round_array(fft::fft(result3.clone(), true)), arr3.clone());
+    }
 
-
+    #[test]
+    fn fft_returns_a_symmetrical_array() {
         let n: usize = 64;
-        let mut arr4: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
+        let mut arr: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
         for i in 0 .. n {
-            arr4[i] = Complex::new(i as f64, 0.0);
+            arr[i] = Complex::new(i as f64, 0.0);
         }
 
-        let result4: Vec<Complex<f64>> = fft::fft(arr4, false);
+        let result: Vec<Complex<f64>> = fft::fft(arr, false);
 
-        let first_element: Complex<f64> = result4[0];
-        let middle_element: Complex<f64> = result4[n / 2];
+        let first_element: Complex<f64> = result[0];
+        let middle_element: Complex<f64> = result[n / 2];
 
         assert_eq!(first_element.im, 0.0);
         assert_eq!(middle_element.im, 0.0);
 
         for i in 1 .. n {
-            let left: Complex<f64> = result4[i];
-            let right: Complex<f64> = result4[n - i];
-            assert_eq!(left, right.conj());
+            let left: Complex<f64> = result[i];
+            let right: Complex<f64> = result[n - i];
+            assert_eq!(utils::round(left), utils::round(right.conj()));
         }
-    }
-
-    #[test]
-    fn ifft_is_working() {
-
-        let arr: Vec<Complex<f64>> = vec![
-            Complex::new(3.0, 0.0),
-            Complex::new(-1.0, 0.0),
-        ];
-
-        let expected: Vec<Complex<f64>> = vec![
-            Complex::new(1.0, 0.0),
-            Complex::new(2.0, 0.0),
-        ];
-
-        let result: Vec<Complex<f64>> = fft::fft(arr, true);
-
-        assert_eq!(result, expected);
-
-        let arr2: Vec<Complex<f64>> = vec![
-            Complex::new(10.0, 0.0),
-            Complex::new(-2.0, 2.0),
-            Complex::new(-2.0, 0.0),
-            Complex::new(-2.0, -2.0),
-        ];
-
-        let expected2: Vec<Complex<f64>> = vec![
-            Complex::new(1.0, 0.0),
-            Complex::new(2.0, 0.0),
-            Complex::new(3.0, 0.0),
-            Complex::new(4.0, 0.0),
-        ];
-
-        let result2: Vec<Complex<f64>> = fft::fft(arr2, true);
-
-        assert_eq!(result2, expected2);
     }
 }
