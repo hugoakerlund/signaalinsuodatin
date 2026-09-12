@@ -2,12 +2,14 @@ use num::complex::Complex;
 
 pub const ROUND_TO_DECIMALS: f64 = 1e10;
 
+// Funktio pyöristää kompleksiluvun.
 pub fn round(num: Complex<f64>) -> Complex<f64> {
     let rounded_re: f64 = (num.re * ROUND_TO_DECIMALS).round();
     let rounded_im: f64 = (num.im * ROUND_TO_DECIMALS).round();
     return Complex::new(rounded_re / ROUND_TO_DECIMALS, rounded_im / ROUND_TO_DECIMALS);
 }
 
+// Funktio pyöristää taulukossa olevat kompleksiluvut.
 pub fn round_array(arr: Vec<Complex<f64>>) -> Vec<Complex<f64>> {
     let n: usize = arr.len();
     let mut result: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
@@ -17,6 +19,8 @@ pub fn round_array(arr: Vec<Complex<f64>>) -> Vec<Complex<f64>> {
     result
 }
 
+// Funktio laajentaa taulukon koon seuraavaan kahden potensiin ja täyttää nollilla uudet alkiot
+// taulukon lopussa.
 pub fn pad_with_zeros(arr: &mut Vec<Complex<f64>>) {
     let n: usize = arr.len();
     if n == 1 {
