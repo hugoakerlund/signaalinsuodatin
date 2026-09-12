@@ -1,4 +1,4 @@
-# Vikkoraportti 1
+# Viikkoraportti 1
 
 Tällä viikolla olen valinnut aiheen, ohjelmointikielen ja perehtynyt kurssin ohjeistukseen. Olen perehtynyt hieman aiheeseen liittyviin algoritmeihin ja tietorakenteisiin sekä etsinyt sopivia lähteitä. Olen myös luonut työlle Github repositorion ja rekisteröitynyt Labtooliin. Lisäksi olen aloittanut dokumentaatin kirjoittamisen ja kirjoittanut määrittelydokumentin.
 
