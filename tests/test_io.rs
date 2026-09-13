@@ -8,10 +8,10 @@ mod tests {
 
     #[test]
     fn input_file_is_read() {
-        let input_file: &str = "test_data/input.wav";
+        let input_file: &str = "test_data/test_sample.wav";
         let reader = io::read_input_file(input_file);
         assert_eq!(reader.spec().channels, 2);
-        assert_eq!(reader.spec().sample_rate, 48000);
+        assert_eq!(reader.spec().sample_rate, 44100);
         assert_eq!(reader.spec().bits_per_sample, 16);
     }
 
@@ -38,6 +38,7 @@ mod tests {
 
         io::write_output_file(output_file, spec, samples);
         assert!(Path::new(output_file).exists());
+        remove_file(output_file).unwrap();
     }
 
     #[test]

@@ -32,3 +32,25 @@ pub fn pad_with_zeros(arr: &mut Vec<Complex<f64>>) {
     }
     arr.resize(new_size, Complex::new(0.0, 0.0));
 }
+
+// Muuntaa taulukon alkiot kokonaisluvuista kompleksiluvuiksi.
+pub fn convert_to_complex_vector(arr: Vec<i32>) -> Vec<Complex<f64>> {
+    let n = arr.len();
+    let mut result: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
+    for i in 0 .. n {
+        result[i] = Complex::new(arr[i] as f64, 0.0);
+    }
+    result
+}
+
+// Muuntaa taulukon alkiot kompleksiluvuista kokonaisluvuiksi.
+pub fn convert_to_real_vector(arr: Vec<Complex<f64>>) -> Vec<i32> {
+    let n = arr.len();
+    let mut result: Vec<i32> = std::vec::from_elem(0, n);
+    for i in 0 .. n {
+        let num = arr[i].re as i32;
+        result[i] = num;
+    }
+    result
+}
+

@@ -73,4 +73,21 @@ mod tests {
         utils::pad_with_zeros(&mut arr5);
         assert_eq!(arr5.len(), 524288);
     }
+
+    #[test]
+    fn conversion_between_real_and_complex_arrays_works() {
+        let real: Vec<i32> = vec![0, 1, 2, 3, 4, 5, 6, 7];
+        let complex: Vec<Complex<f64>> = vec![
+            Complex::new(0.0, 0.0),
+            Complex::new(1.0, 0.0),
+            Complex::new(2.0, 0.0),
+            Complex::new(3.0, 0.0),
+            Complex::new(4.0, 0.0),
+            Complex::new(5.0, 0.0),
+            Complex::new(6.0, 0.0),
+            Complex::new(7.0, 0.0),
+        ];
+        assert_eq!(utils::convert_to_complex_vector(real.clone()), complex);
+        assert_eq!(real, utils::convert_to_real_vector(complex));
+    }
 }
