@@ -18,8 +18,8 @@ pub fn fft(arr: Vec<Complex<f64>>, inverse: bool) -> Vec<Complex<f64>> {
     let even_elements: Vec<Complex<f64>> = get_even_elements(&arr);
     let odd_elements: Vec<Complex<f64>> = get_odd_elements(&arr);
 
-    println!{"even {:?}", even_elements};
-    println!{"odd {:?}", odd_elements};
+    // println!{"even {:?}", even_elements};
+    // println!{"odd {:?}", odd_elements};
 
     // Rekursiiviset funktiokutsut tehdään molemmille taulukoille.
     let even: Vec<Complex<f64>> = fft(even_elements, inverse);
@@ -35,10 +35,10 @@ pub fn fft(arr: Vec<Complex<f64>>, inverse: bool) -> Vec<Complex<f64>> {
         // käänteinen FFT-algoritmi ei käytä, minkä takia kolmannen argumentin edessä on negaatio.
         let root: Complex<f64> = gen_nth_root_of_unity(k, n, !inverse);
 
-        println!("\nw = {}", root);
-        println!("k = {}", k);
-        println!("even {}", even[k]);
-        println!("odd {}", odd[k]);
+        // println!("\nw = {}", root);
+        // println!("k = {}", k);
+        // println!("even {}", even[k]);
+        // println!("odd {}", odd[k]);
 
         // Lasketaan Fourier-muunnokset. Tämän FFT-algoritmin ydin on, että se laskee kaksi n/2
         // kokoista DFT:tä. Saatuja välituloksia käytetään myöhemmin uudelleen, mikä nopeuttaa
@@ -64,18 +64,12 @@ pub fn fft(arr: Vec<Complex<f64>>, inverse: bool) -> Vec<Complex<f64>> {
 
 // Funktio palauttaa taulukon alkiot, joiden indeksi on parillinen.
 pub fn get_even_elements(arr: &Vec<Complex<f64>>) -> Vec<Complex<f64>> {
-    let n = arr.len();
-    let mut result: Vec<Complex<f64>> = arr.iter().step_by(2).copied().collect();
-    result.resize(n / 2, Complex::new(0.0, 0.0));
-    result
+    return arr.iter().step_by(2).copied().collect();
 }
 
 // Funktio palauttaa taulukon alkiot, joiden indeksi on pariton.
 pub fn get_odd_elements(arr: &Vec<Complex<f64>>) -> Vec<Complex<f64>> {
-    let n = arr.len();
-    let mut result: Vec<Complex<f64>> = arr.iter().skip(1).step_by(2).copied().collect();
-    result.resize(n / 2, Complex::new(0.0, 0.0));
-    result
+    return arr.iter().skip(1).step_by(2).copied().collect();
 }
 
 // Funktio palauttaa n:nnen yksikköjuuren, jossa k = 0 ... n. Funktio voi palauttaa myös tämän

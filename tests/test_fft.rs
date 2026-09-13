@@ -36,6 +36,7 @@ mod tests {
         let expected2: Vec<Complex<f64>> = vec![
             Complex::new(1.0, 0.0),
             Complex::new(3.0, 0.0),
+            Complex::new(5.0, 0.0),
         ];
         let result2 = fft::get_even_elements(&arr2);
         assert_eq!(result2, expected2);
