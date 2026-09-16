@@ -24,7 +24,7 @@ pub fn read_input_file(input_file: &str) -> hound::WavReader<BufReader<File>> {
 
     println!("File information:");
     println!("\tChannels: {:?}", channels);
-    println!("\tSamples rate: {:?}", sample_rate);
+    println!("\tSampling rate: {:?}", sample_rate);
     println!("\tBits per sample: {:?}", bits_per_sample);
     println!("\tDuration: {}min {}s", duration / 60, duration % 60);
     println!("\tNumber of samples: {:?}\n", samples);

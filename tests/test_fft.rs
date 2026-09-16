@@ -194,7 +194,7 @@ mod tests {
         for i in 1 .. n {
             let left: Complex<f64> = result[i];
             let right: Complex<f64> = result[n - i];
-            assert_eq!(utils::round(left), utils::round(right.conj()));
+            assert_eq!(utils::round_c64(left), utils::round_c64(right.conj()));
         }
     }
 }
