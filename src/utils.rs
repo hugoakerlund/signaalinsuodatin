@@ -78,7 +78,7 @@ pub fn sinc(x: f64) -> f64 {
 }
 
 // https://en.wikipedia.org/wiki/Window_function#Hamming_window
-pub fn hamming(length: usize) -> Vec<Complex<f64>> {
+pub fn create_hamming_window(length: usize) -> Vec<Complex<f64>> {
     let mut result: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), length);
     for i in 0 .. length {
         let x: f64 = 0.53836 - 0.46164 * ((PI * i as f64) / length as f64).cos();

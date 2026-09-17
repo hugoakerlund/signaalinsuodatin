@@ -12,7 +12,6 @@ pub struct Arguments {
 // Funktio lukee syöte tiedoston levyltä ja tulostaa tietoja sen spesifikaatiosta. Tiedoston lukija
 // palautetaan.
 pub fn read_input_file(input_file: &str) -> hound::WavReader<BufReader<File>> {
-    println!("Reading file '{}'\n", input_file);
     let mut reader = hound::WavReader::open(input_file).unwrap();
     let spec = reader.spec();
 
@@ -22,12 +21,12 @@ pub fn read_input_file(input_file: &str) -> hound::WavReader<BufReader<File>> {
     let duration = reader.duration() / sample_rate;
     let samples = reader.samples::<i32>().len();
 
-    println!("File information:");
-    println!("\tChannels: {:?}", channels);
-    println!("\tSampling rate: {:?}", sample_rate);
-    println!("\tBits per sample: {:?}", bits_per_sample);
-    println!("\tDuration: {}min {}s", duration / 60, duration % 60);
-    println!("\tNumber of samples: {:?}\n", samples);
+    println!("\tFile information:");
+    println!("\t-Channels: {:?}", channels);
+    println!("\t-Sampling rate: {:?}", sample_rate);
+    println!("\t-Bits per sample: {:?}", bits_per_sample);
+    println!("\t-Duration: {}min {}s", duration / 60, duration % 60);
+    println!("\t-Number of samples: {:?}", samples);
 
     reader
 }
@@ -35,7 +34,6 @@ pub fn read_input_file(input_file: &str) -> hound::WavReader<BufReader<File>> {
 // Funktio kirjoittaa tiedoston levylle. Funktio saa argumentteina tiedoston nimen, spesifikaation ja
 // ääninäytteet.
 pub fn write_output_file(output_file: &str, spec: hound::WavSpec, samples: Vec<i32>) -> () {
-    println!("Writing file '{}'", output_file);
     let mut writer = hound::WavWriter::create(output_file, spec).unwrap();
     for sample in samples {
         writer.write_sample(sample).unwrap();
