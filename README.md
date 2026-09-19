@@ -2,11 +2,11 @@
 
 ## Dokumentaatio
 
-[Määrittelydokumentti](./docs/maarittelydokumentti.md)
-[Testausraportti](./docs/testausraportti.md)
+- [Määrittelydokumentti](./docs/maarittelydokumentti.md)
+- [Testausraportti](./docs/testausraportti.md)
 
 ## Viikkoraportit
 
-[Viikkoraporti 1](./docs/viikkoraportti_1.md)
-[Viikkoraporti 2](./docs/viikkoraportti_2.md)
-[Viikkoraporti 3](./docs/viikkoraportti_3.md)
+- [Viikkoraportti 1](./docs/viikkoraportti_1.md)
+- [Viikkoraportti 2](./docs/viikkoraportti_2.md)
+- [Viikkoraportti 3](./docs/viikkoraportti_3.md)
