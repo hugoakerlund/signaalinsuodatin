@@ -1,116 +1,99 @@
-use crate::{utils, fft, io};
+use crate::{utils, fft};
 use num::Complex;
-use hound;
 
 pub struct Filter {
-    output_file: String,
-    cutoff_frequency: f64,
-    spec: hound::WavSpec,
+    lpf: Vec<Complex<f64>>,
     samples: Vec<i32>,
 }
 
 impl Filter {
-    pub fn new() -> Result<Self, &'static str> {
+    pub fn new(cutoff_frequency: f64, sample_rate: f64, samples: Vec<i32>) -> Self {
+        let lpf = Self::create_low_pass_filter(samples.len() + 1, sample_rate, cutoff_frequency);
 
-        let arguments: Vec<String> = std::env::args().collect();
-        let parsed_arguments = io::parse_cli_arguments(&arguments);
-
-        match parsed_arguments{
-            Ok(args) => {
-
-                println!("0/4: Reading file '{}'", args.input_file);
-                let reader = io::read_input_file(&args.input_file);
-                let spec = reader.spec();
-                let samples: Vec<i32> = reader.into_samples()
-                    .map(|r| r.unwrap())
-                    .collect();
-
-                Ok(Self {
-                    output_file: args.output_file,
-                    cutoff_frequency: args.cutoff_frequency as f64,
-                    spec: spec,
-                    samples: samples,
-                })
-            },
-
-            Err(e) => {
-                io::print_usage();
-                Err(e)
-            },
+        Self {
+            lpf: lpf,
+            samples: samples,
         }
-
     }
 
-    pub fn run(&self) {
-        let filter = Self::create_low_pass_filter(self.samples.len() + 1, self.spec.sample_rate as f64, self.cutoff_frequency);
-        let prepares_samples: Vec<Complex<f64>> = Self::create_prepared_samples(self.samples.clone());
-        let processed_samples: Vec<i32> = Self::apply_filter(prepares_samples, filter, self.samples.len());
-        Self::write_result_to_file(&self.output_file, self.spec, processed_samples);
+    pub fn get_lpf(&self) -> Vec<Complex<f64>> {
+        self.lpf.clone()
     }
 
-    // https://ccrma.stanford.edu/~jos/sasp/Example_1_Low_Pass_Filtering.html
-    fn create_low_pass_filter(length: usize, sampling_rate: f64, cutoff_frequency: f64) -> Vec<Complex<f64>> {
+    pub fn get_filtered_samples(&self) -> Vec<i32> {
+        let prepared_samples: Vec<Complex<f64>> = Self::create_prepared_samples(self.samples.clone());
+        let filtered_samples: Vec<i32> = Self::apply_filter(prepared_samples, self.lpf.clone(), self.samples.len());
+        filtered_samples
+    }
+
+    fn create_low_pass_filter(length: usize, sample_rate: f64, cutoff_frequency: f64) -> Vec<Complex<f64>> {
         println!("\n1/4: Creating filter.");
 
-        let mut hsupp: Vec<f64> = std::vec::from_elem(0.0, length);
-        hsupp[0] = -(length as f64) / 2.0;
+        let mut supp: Vec<f64> = std::vec::from_elem(0.0, length);
+        supp[0] = -(length as f64 - 1.0) / 2.0;
         for i in 1 .. length {
-            hsupp[i] = hsupp[i - 1] + 1.0;
+            supp[i] = supp[i - 1] + 1.0;
         }
 
-        let mut hideal: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), length);
+        // https://en.wikipedia.org/wiki/Sinc_filter#Sinc-in-time
+        let mut ideal: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), length);
         for i in 0.. length {
-            let x = (2.0 * cutoff_frequency / sampling_rate) * utils::sinc(2.0 * cutoff_frequency * hsupp[i] / sampling_rate);
-            hideal[i] = Complex::new(x, 0.0);
+            let x = (2.0 * cutoff_frequency / sample_rate) * utils::sinc(2.0 * cutoff_frequency * supp[i] / sample_rate);
+            ideal[i] = Complex::new(x, 0.0);
         }
 
-        // https://en.wikipedia.org/wiki/Window_function
         let hamming: Vec<Complex<f64>> = utils::create_hamming_window(length);
-        let mut filter: Vec<Complex<f64>> = utils::multiply_complex_arrays(hamming, hideal);
+        let mut filter: Vec<Complex<f64>> = utils::multiply_complex_arrays(hamming, ideal);
 
+        // Suodatin täytetään nollilla seuraavan kahden potenssin pituuteen, jotta sille voidaan
+        // tehdä Fourier-muunnos.
         println!("\t-Padding filter with zeros.");
         utils::pad_with_zeros(&mut filter);
+        println!("\t-Size after padding with zeros: {}.", filter.len());
 
         println!("\t-Performing FFT on filter.");
         let filter = fft::fft(filter, false);
-
         println!("\t-Filter created.");
         filter
     }
 
-    fn create_prepared_samples(samples: Vec<i32>) -> Vec<Complex<f64>> {
+    pub fn create_prepared_samples(samples: Vec<i32>) -> Vec<Complex<f64>> {
         println!("\n2/4: Preparing samples.");
-        println!("\t -Converting samples to complex array.");
+        println!("\t-Converting samples to complex array.");
         let mut complex_samples = utils::convert_to_complex_array(samples);
 
-        println!("\t -Padding samples with zeros.");
+        // Ääninäytteet täytetään nollilla seuraavan kahden potenssin pituuteen, jotta sille voidaan
+        // tehdä Fourier-muunnos.
+        println!("\t-Padding samples with zeros.");
         utils::pad_with_zeros(&mut complex_samples);
-        println!("\t -Size after padding with zeros: {}.", complex_samples.len());
+        println!("\t-Size after padding with zeros: {}.", complex_samples.len());
 
-        println!("\t -Performing FFT on samples.");
-        return fft::fft(complex_samples, false);
+        println!("\t-Performing FFT on samples.");
+        let prepared_samples = fft::fft(complex_samples, false);
+        println!("\t-Samples prepared.");
+        prepared_samples
     }
 
-    fn apply_filter(prepared_samples: Vec<Complex<f64>>, filter: Vec<Complex<f64>>, old_length: usize) -> Vec<i32> {
+    pub fn apply_filter(prepared_samples: Vec<Complex<f64>>, filter: Vec<Complex<f64>>, original_length: usize) -> Vec<i32> {
         println!("\n3/4: Applying filter on samples.");
         let filtered = utils::multiply_complex_arrays(prepared_samples, filter);
-        println!("\t -Filter applied.");
+        println!("\t-Filter applied.");
 
-        println!("\t -Performing IFFT on filtered samples.");
+        println!("\t-Performing IFFT on filtered samples.");
         let processed_samples = fft::fft(filtered, true);
 
-        println!("\t -Converting samples back to real array.");
+        println!("\t-Converting samples back to real array.");
         let mut new_samples = utils::convert_to_real_array(processed_samples);
-        new_samples.rotate_left(old_length / 2);
-        println!("\t -Resizing samples back to original length.");
-        new_samples.resize(old_length, 0);
+
+        // Ääninäytteet ovat siirtyneet suodattimen käytön jälkeen (alkuperäisten ääninäytteiden pituus / 2)
+        // askelta oikealle, joten nyt ne siirrettään takaisin tämän verran vasemmalle.
+        new_samples.rotate_left(original_length / 2);
+
+        // Ääninäytteet täytettiin nollilla, jotta niille voitiin tehdä Fourier-muunnos. Nyt nollat
+        // poistetaan taulukon lopusta, jolloin ääniraidan pituus säilyy ennallaan.
+        println!("\t-Resizing samples back to original length.");
+        new_samples.resize(original_length, 0);
         new_samples
     }
-    fn write_result_to_file(output_file: &str, spec: hound::WavSpec, new_samples: Vec<i32>) -> () {
-        println!("\n4/4: Writing output file '{}'", output_file);
-        io::write_output_file(output_file, spec, new_samples);
-        println!("\t -Output file '{}' created.", output_file);
-    }
-
 }
 

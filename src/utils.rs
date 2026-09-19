@@ -29,17 +29,11 @@ pub fn round_array(arr: Vec<Complex<f64>>) -> Vec<Complex<f64>> {
 // taulukon lopussa.
 pub fn pad_with_zeros(arr: &mut Vec<Complex<f64>>) {
     let n: usize = arr.len();
-    if n == 1 {
-        return;
-    }
-    let mut new_size: usize = 2;
-    while new_size < n {
-        new_size *= 2;
-    }
-    arr.resize(new_size, Complex::new(0.0, 0.0));
+    let x = n.next_power_of_two();
+    arr.resize(x, Complex::new(0.0, 0.0));
 }
 
-// Muuntaa taulukon alkiot kokonaisluvuista kompleksiluvuiksi.
+// Funktio muuntaa taulukon alkiot kokonaisluvuista kompleksiluvuiksi.
 pub fn convert_to_complex_array(arr: Vec<i32>) -> Vec<Complex<f64>> {
     let n = arr.len();
     let mut result: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
@@ -49,7 +43,7 @@ pub fn convert_to_complex_array(arr: Vec<i32>) -> Vec<Complex<f64>> {
     result
 }
 
-// Muuntaa taulukon alkiot kompleksiluvuista kokonaisluvuiksi.
+// Funktio muuntaa taulukon alkiot kompleksiluvuista kokonaisluvuiksi.
 pub fn convert_to_real_array(arr: Vec<Complex<f64>>) -> Vec<i32> {
     let n = arr.len();
     let mut result: Vec<i32> = std::vec::from_elem(0, n);
@@ -60,6 +54,7 @@ pub fn convert_to_real_array(arr: Vec<Complex<f64>>) -> Vec<i32> {
     result
 }
 
+// Funktio kertoo keskenään kaksi kompleksiluvuista koostuvaa taulukkoa.
 pub fn multiply_complex_arrays(arr1: Vec<Complex<f64>>, arr2: Vec<Complex<f64>>) -> Vec<Complex<f64>> {
     let n = arr1.len();
     let mut result: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
@@ -69,6 +64,8 @@ pub fn multiply_complex_arrays(arr1: Vec<Complex<f64>>, arr2: Vec<Complex<f64>>)
     result
 }
 
+// Funktio toteuttaa normalisoidun sinifunktion toteutus. Normalisoitua sinifunktiota käytetään
+// usein signaalinkäsittelyssä. Erityisesti tässä projektissa sitä käytetään suodattimen luomiseen.
 pub fn sinc(x: f64) -> f64 {
     if x == 0.0 {
         return 1.0;
@@ -77,12 +74,17 @@ pub fn sinc(x: f64) -> f64 {
     return pi_x.sin() / pi_x;
 }
 
-// https://en.wikipedia.org/wiki/Window_function#Hamming_window
+// Funktio luo Hamming-ikkunan. Ikkuna muistuttaa paljon Hann-ikkunaa, sillä sen muodon määrää
+// kosinifunktio, mutta vakiot a_0 ja a_1 ovat eri. Ikkunaa käytetään suodattimen luomiseen.
+// Digitaalisissa suodattimissa tätä kutsutaan ikkunametodiksi.
 pub fn create_hamming_window(length: usize) -> Vec<Complex<f64>> {
     let mut result: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), length);
     for i in 0 .. length {
-        let x: f64 = 0.53836 - 0.46164 * ((PI * i as f64) / length as f64).cos();
-        result[i] = Complex::new(x, 0.0);
+        let a_0: f64 = 0.53836;
+        let a_1: f64 = -0.46164;
+        let x = (PI * i as f64) / length as f64;
+        let res = a_0 + a_1 * x.cos();
+        result[i] = Complex::new(res, 0.0);
     }
     result
 }

@@ -142,4 +142,26 @@ mod tests {
             assert_eq!(utils::round_f64(utils::sinc(arr[i])), expected[i]);
         }
     }
+
+    #[test]
+    fn hamming_window_is_created_correctly() {
+        let n: usize = 10;
+        let result: Vec<Complex<f64>> = utils::create_hamming_window(n);
+        let expected: Vec<Complex<f64>> = vec![
+            Complex::new(0.07672,      0.0),
+            Complex::new(0.0993142698, 0.0),
+            Complex::new(0.1648853947, 0.0),
+            Complex::new(0.2670148161, 0.0),
+            Complex::new(0.3957053947, 0.0),
+            Complex::new(0.53836,      0.0),
+            Complex::new(0.6810146053, 0.0),
+            Complex::new(0.8097051839, 0.0),
+            Complex::new(0.9118346053, 0.0),
+            Complex::new(0.9774057302, 0.0),
+        ];
+
+        for i in 0 .. n {
+            assert_eq!(utils::round_c64(result[i]), expected[i]);
+        }
+    }
 }
