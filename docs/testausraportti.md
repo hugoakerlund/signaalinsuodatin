@@ -25,19 +25,19 @@ Testikattavuus yksikkötestien perusteella on saatu [cargo-tarpaulin](https://do
 
 ### Kattavuusraportti
 
-Kattavuus: 143/185 (77.30%)
+Kattavuus: 181/197 (91.88%)
 
 <details>
 <summary>Näytä tiedostokohtainen kattavuus</summary>
 
 | Tiedosto | Kattavuus | Prosentti | Muutos |
 |------|----------|------------|--------|
-| src/fft.rs | 29/29 | 100.00% | - |
-| src/filter.rs | 23/49 | 46.94% | - |
+| src/fft.rs | 36/36 | 100.00% | - |
+| src/filter.rs | 83/83 | 100.00% | - |
 | src/io.rs | 42/44 | 95.45% | - |
 | src/lib.rs | 0/0 | 0.00% | - |
 | src/main.rs | 0/14 | 0.00% | - |
-| src/utils.rs | 49/49 | 100.00% | - |
+| src/utils.rs | 20/20 | 100.00% | - |
 
 </details>
 
