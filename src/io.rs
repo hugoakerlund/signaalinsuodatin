@@ -82,7 +82,7 @@ pub fn parse_cli_arguments(args: &Vec<String>) -> Result<Arguments, &'static str
     Ok(Arguments { input_file: input, output_file: output, cutoff_frequency: cutoff})
 }
 
-// Funktio tulostaa lyhyesti ohjelman käyttötavan.
+// Funktio tulostaa lyhyesti ohjelman käyttöohjeen.
 pub fn print_usage() -> () {
     println!("./signaalinsuodatin --input <input_file --output <output_file> --cutoff <cutoff_frequency>");
 }
