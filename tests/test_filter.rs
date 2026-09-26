@@ -10,11 +10,34 @@ mod tests {
     const CUTOFF_FREQUENCY: f64 = 100.0;
 
     #[test]
+    fn coefficients_are_created_correctly() {
+        let size: usize = 8;
+        let result: Vec<f64> = filter::Filter::create_coefficients(size);
+        assert_eq!(result[0], -result[size-1]);
+
+        let size2: usize = 20;
+        let result2: Vec<f64> = filter::Filter::create_coefficients(size2);
+        assert_eq!(result2[0], -result2[size2-1]);
+
+        let size3: usize = 27;
+        let result3: Vec<f64> = filter::Filter::create_coefficients(size3);
+        assert_eq!(result3[0], -result3[size3-1]);
+    }
+
+    #[test]
+    fn ideal_filter_is_calculated_correctly() {
+        let coefficients: Vec<f64> = filter::Filter::create_coefficients(SAMPLES_LENGTH);
+        let ideal: Vec<Complex<f64>> = filter::Filter::create_ideal(coefficients, CUTOFF_FREQUENCY, SAMPLE_RATE);
+        assert_eq!(ideal.len(), SAMPLES_LENGTH);
+        assert_eq!(ideal[0], ideal[SAMPLES_LENGTH-1]);
+    }
+
+    #[test]
     fn low_pass_filter_is_created() {
         let samples: Vec<i32> = std::vec::from_elem(1000, SAMPLES_LENGTH);
         let filter = filter::Filter::new(CUTOFF_FREQUENCY, SAMPLE_RATE, samples);
 
-        let lpf = filter.get_lpf();
+        let lpf = filter.lpf;
         assert_eq!(lpf.len(), SAMPLES_LENGTH.next_power_of_two());
         assert_eq!(utils::fft_array_is_symmetrical(lpf), true);
     }
@@ -109,7 +132,7 @@ mod tests {
             0.5045511524,
         ];
         for i in 0 .. arr.len() {
-            assert_eq!(utils::round_f64(signaalinsuodatin::filter::Filter::sinc(arr[i])), expected[i]);
+            assert_eq!(utils::round_float(signaalinsuodatin::filter::Filter::sinc(arr[i])), expected[i]);
         }
     }
 
@@ -131,7 +154,7 @@ mod tests {
         ];
 
         for i in 0 .. n {
-            assert_eq!(utils::round_c64(result[i]), expected[i]);
+            assert_eq!(utils::round_cmplx(result[i]), expected[i]);
         }
     }
 

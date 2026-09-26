@@ -24,7 +24,7 @@ mod tests {
           Complex::new(  0.8090169944, 0.0),
         ];
         for i in 0 .. numbers.len() {
-            let result = utils::round_c64(numbers[i]);
+            let result = utils::round_cmplx(numbers[i]);
             assert_eq!(expected[i], result);
         }
     }

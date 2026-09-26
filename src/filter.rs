@@ -2,20 +2,31 @@ use crate::fft;
 use std::f64::consts::PI;
 use num::Complex;
 
-// Tietue sisältää suodattimen jäsenmuuttujat:
-// - Alipäästösuodatin, joka on kompleksiluvuista koostuva taulukko.
-// - FFT-olio, jota suodatin käyttää aikatason ja taajuustason välillä tapahtuvaan muuntamiseen.
-// - Ääninäytteet, joihin suodatinta sovelletaan.
+/// Tietue edustaa digitaalista suodatinta.
 pub struct Filter {
-    lpf: Vec<Complex<f64>>,
-    fft: fft::FFT,
-    samples: Vec<i32>,
+    /// Alipäästösuodatin on kompleksinumeroista koostuva taulukko.
+    pub lpf: Vec<Complex<f64>>,
+    ///  FFT-oliota käytetään aikatason ja taajuustason välillä tapahtuvaan muuntamiseen.
+    pub fft: fft::FFT,
+    /// Ääninäytteet ovat kokonaisluvuista koostuva taulukko.
+    pub samples: Vec<i32>,
 }
 
 impl Filter {
-
-    // Konstruktori luo alipäästösuodattimen ja saa argumentteina ääniraidan pituuden, johon suodatinta
-    // sovelletaan, sen näytteenottotaajuuden sekä ylärajataajuuden.
+    /// Konstruktori luo alipäästösuodattimen ja saa argumentteina ääniraidan pituuden, sen sämpläys
+    /// taajuuden sekä ylärajataajuuden, jota korkeammat taajuudet poistetaan.
+    ///
+    /// # Esimerkit
+    /// ```
+    /// let samples: Vec<i32> = std::vec::from_elem(1000, 100);
+    /// let cutoff_frequency: f64 = 500.0;
+    /// let sample_rate: f64 = 44100.0;
+    ///
+    /// let filter = signaalinsuodatin::filter::Filter::new(cutoff_frequency, sample_rate, samples);
+    /// let filtered_samples = filter.get_filtered_samples();
+    ///
+    /// assert_eq!(100, filtered_samples.len());
+    /// ```
     pub fn new(cutoff_frequency: f64, sample_rate: f64, samples: Vec<i32>) -> Self {
 
         // Ääninäytteiden pituutta tarvitaan oikean kokoisen suodattimen luomiseen.
@@ -26,7 +37,7 @@ impl Filter {
 
         // Lasketaan idealisoitu alipäästösuodatin annetun ylärajan ja ääninäytteiden perusteella.
         println!("\n1/4: Creating filter.");
-        let coefficients = Self::create_coefficients(length);
+        let coefficients = Self::create_coefficients(length + 1);
         let ideal = Self::create_ideal(coefficients, cutoff_frequency, sample_rate);
 
         // Luodaan Hamming-ikkuna, jonka koko vastaa halutun suodattimen kokoa.
@@ -47,8 +58,17 @@ impl Filter {
         }
     }
 
-    // Funktio luo kertoimet, joita käytetään idealisoidun suodattimen luomiseen. Kertoimet ovat
-    // symmetriset y-akselin molemminpuolin.
+    /// Funktio luo kertoimet, joita käytetään idealisoidun suodattimen luomiseen. Kertoimet ovat
+    /// symmetriset y-akselin molemminpuolin.
+    ///
+    /// # Esimerkit
+    ///
+    /// ```
+    /// let n: usize = 101;
+    /// let result: Vec<f64> = signaalinsuodatin::filter::Filter::create_coefficients(n);
+    /// assert_eq!(-50.0, result[0]);
+    /// assert_eq!(50.0, result[n-1]);
+    /// ```
     pub fn create_coefficients(length: usize) -> Vec<f64> {
         let mut coefficients : Vec<f64> = std::vec::from_elem(0.0, length);
         coefficients[0] = -(length as f64 - 1.0) / 2.0;
@@ -58,10 +78,25 @@ impl Filter {
         coefficients
     }
 
-    // Funktio laskee idealisoidun alipäästösuodattimen, joka poistaa kaikki taajuudet argumenttina
-    // annetun ylärajan yläpuolelta muuttamatta alempia taajuuksia. Suodatinta kutsutaankin tämän
-    // takia ns. tiiliseinäsuodattimeksi. Suodattimen vaihevaste on lineaarinen, minkä takia
-    // signaalin vaihe siirtyy kertoimien verran.
+    /// Funktio laskee idealisoidun alipäästösuodattimen, joka poistaa kaikki taajuudet argumenttina
+    /// annetun ylärajan yläpuolelta muuttamatta alempia taajuuksia. Suodatinta kutsutaankin tämän
+    /// takia ns. tiiliseinäsuodattimeksi. Suodattimen vaihevaste on lineaarinen, minkä takia
+    /// signaalin vaihe siirtyy kertoimien verran suodatuksen jälkeen.
+    ///
+    /// # Esimerkit
+    ///
+    /// ```
+    /// use num::Complex;
+    /// let n: usize = 101;
+    /// let coefficients: Vec<f64> = signaalinsuodatin::filter::Filter::create_coefficients(n);
+    ///
+    /// let cutoff_frequency = 100.0;
+    /// let sample_rate = 44100.0;
+    /// let ideal: Vec<Complex<f64>> = signaalinsuodatin::filter::Filter::create_ideal(coefficients,
+    /// cutoff_frequency, sample_rate);
+    ///
+    /// assert_eq!(ideal[0], ideal[n-1]);
+    /// ```
     pub fn create_ideal(coefficients: Vec<f64>, cutoff_frequency: f64, sample_rate: f64) -> Vec<Complex<f64>> {
         let length = coefficients.len();
         let mut ideal: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), length);
@@ -73,19 +108,14 @@ impl Filter {
         ideal
     }
 
-    // Metodi palauttaa alipäästösuodattimen.
-    pub fn get_lpf(&self) -> Vec<Complex<f64>> {
-        self.lpf.clone()
-    }
-
-    // Metodi palauttaa suodatetut ääninäytteet aikatasossa.
+    /// Metodi palauttaa suodatetut ääninäytteet aikatasossa.
     pub fn get_filtered_samples(&self) -> Vec<i32> {
         let frequency_samples: Vec<Complex<f64>> = Self::create_frequency_samples(&self);
         let filtered_samples: Vec<i32> = Self::apply_filter(&self, frequency_samples);
         filtered_samples
     }
 
-    // Metodi muuntaan ääninäytteet aikatasosta taajuustasoon.
+    /// Metodi muuntaan ääninäytteet aikatasosta taajuustasoon.
     pub fn create_frequency_samples(&self) -> Vec<Complex<f64>> {
 
         // Ääninäytteet muunnetaan kompleksinumeroiksi.
@@ -100,7 +130,7 @@ impl Filter {
         frequency_samples
     }
 
-    // Metodi soveltaa suodatinta taajuustasossa oleviin ääninäytteisiin, jotka se saa argumenttina.
+    /// Metodi soveltaa suodatinta taajuustasossa oleviin ääninäytteisiin, jotka se saa argumenttina.
     pub fn apply_filter(&self, frequency_samples: Vec<Complex<f64>>) -> Vec<i32> {
 
         // Suodatin ja ääninäytteet ovat nyt taajustasossa. Niiden konvoluutio aikatasossa vastaa
@@ -126,22 +156,33 @@ impl Filter {
         new_samples
     }
 
-    // Metodi korjaa ääninäytteiden vaiheen suodattimen käytön jälkeen. Ääninäytteet ovat siirtyneet
-    // suodattimen käytön jälkeen (alkuperäisten ääninäytteiden pituus / 2) askelta oikealle, joten
-    // niitä siirrettään takaisin tämän verran vasemmalle.
+    /// Metodi korjaa ääninäytteiden vaiheen suodattimen käytön jälkeen. Ääninäytteet ovat
+    /// viivästyneet suodattimen käytön jälkeen (alkuperäisten ääninäytteiden pituus / 2) askelta,
+    /// joten niitä siirrettään takaisin tämän verran vasemmalle.
     fn correct_samples_phase(&self, arr: &mut Vec<i32>) {
         arr.rotate_left(self.samples.len() / 2);
     }
 
-    // Metodi korjaa ääninäytteiden pituuden takaisin alkuperäiseen. Ääninäytteet täytettiin nollilla,
-    // jotta niille voitiin tehdä Fourier-muunnos. Nyt nollat poistetaan taulukon lopusta, jolloin
-    // ääniraidan pituus säilyy ennallaan.
+    /// Metodi korjaa ääninäytteiden pituuden takaisin alkuperäiseen. Ääninäytteet täytettiin
+    /// nollilla, jotta niille voitiin tehdä Fourier-muunnos. Nollat poistetaan taulukon lopusta,
+    /// jolloin ääniraidan pituus säilyy ennallaan.
     fn correct_samples_length(&self, arr: &mut Vec<i32>) {
         arr.resize(self.samples.len(), 0);
     }
 
-    // Funktio kertoo keskenään kaksi ääninäytettä. Taajuustasossa olevien ääninäytteiden kertominen
-    // keskenään vastaa niiden konvoluutiota aikatasossa.
+    /// Funktio kertoo keskenään kaksi ääninäytettä. Taajuustasossa olevien ääninäytteiden kertominen
+    /// keskenään vastaa niiden konvoluutiota aikatasossa.
+    ///
+    /// # Esimerkit
+    ///
+    /// ```
+    /// use num::Complex;
+    /// let signal1: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(2.0, 2.0), 10);
+    /// let signal2: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(4.0, 4.0), 10);
+    ///
+    /// let result: Vec<Complex<f64>> = signaalinsuodatin::filter::Filter::convolve_signals(signal1, signal2);
+    /// assert_eq!(Complex::new(0.0, 16.0), result[0]);
+    /// ```
     pub fn convolve_signals(arr1: Vec<Complex<f64>>, arr2: Vec<Complex<f64>>) -> Vec<Complex<f64>> {
         let n = arr1.len();
         let mut result: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
@@ -151,9 +192,19 @@ impl Filter {
         result
     }
 
-    // Funktio luo Hamming-ikkunan. Ikkuna muistuttaa paljon Hann-ikkunaa, sillä sen muodon määrää
-    // kosinifunktio, mutta vakiot a_0 ja a_1 ovat eri. Ikkunaa käytetään suodattimen luomiseen.
-    // Digitaalisissa suodattimissa tätä kutsutaan ikkunametodiksi.
+    /// Funktio luo Hamming-ikkunan. Ikkuna muistuttaa paljon Hann-ikkunaa, sillä sen muodon määrää
+    /// kosinifunktio, mutta vakiot a_0 ja a_1 ovat eri. Ikkunaa käytetään suodattimen luomiseen.
+    /// Digitaalisissa suodattimissa tätä kutsutaan ikkunametodiksi.
+    ///
+    /// # Esimerkit
+    ///
+    /// ```
+    /// use num::Complex;
+    /// let n: usize = 10;
+    /// let result: Vec<Complex<f64>> = signaalinsuodatin::filter::Filter::create_hamming_window(n);
+    /// assert_eq!(0.53836 - 0.46164, result[0].re);
+    /// assert_eq!(0.9774057301824945, result[n-1].re);
+    /// ```
     pub fn create_hamming_window(length: usize) -> Vec<Complex<f64>> {
         let mut result: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), length);
         for i in 0 .. length {
@@ -166,7 +217,16 @@ impl Filter {
         result
     }
 
-    // Funktio muuntaa ääninäytteet kokonaisluvuista kompleksiluvuiksi.
+    /// Funktio muuntaa ääninäytteet kokonaisluvuista kompleksiluvuiksi.
+    ///
+    /// # Esimerkit
+    ///
+    /// ```
+    /// use num::Complex;
+    /// let arr: Vec<i32> = std::vec::from_elem(1, 10);
+    /// let result: Vec<Complex<f64>> = signaalinsuodatin::filter::Filter::convert_to_complex_samples(arr);
+    /// assert_eq!(Complex::new(1.0, 0.0), result[0]);
+    /// ```
     pub fn convert_to_complex_samples(arr: Vec<i32>) -> Vec<Complex<f64>> {
         let n = arr.len();
         let mut result: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
@@ -176,7 +236,16 @@ impl Filter {
         result
     }
 
-    // Funktio muuntaa ääninäyteet kompleksiluvuista kokonaisluvuiksi.
+    /// Funktio muuntaa ääninäyteet kompleksiluvuista kokonaisluvuiksi.
+    ///
+    /// # Esimerkit
+    ///
+    /// ```
+    /// use num::Complex;
+    /// let arr: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(1.0, 1.0), 10);
+    /// let result: Vec<i32> = signaalinsuodatin::filter::Filter::convert_to_real_samples(arr);
+    /// assert_eq!(1, result[0]);
+    /// ```
     pub fn convert_to_real_samples(arr: Vec<Complex<f64>>) -> Vec<i32> {
         let n = arr.len();
         let mut result: Vec<i32> = std::vec::from_elem(0, n);
@@ -187,8 +256,15 @@ impl Filter {
         result
     }
 
-    // Funktio toteuttaa normalisoidun sinifunktion. Normalisoitua sinifunktiota käytetään
-    // usein signaalinkäsittelyssä. Erityisesti tässä projektissa sitä käytetään suodattimen luomiseen.
+    /// Funktio toteuttaa normalisoidun sinifunktion. Normalisoitua sinifunktiota käytetään
+    /// usein signaalinkäsittelyssä. Erityisesti tässä projektissa sitä käytetään suodattimen luomiseen.
+    ///
+    /// # Esimerkit
+    ///
+    /// ```
+    /// let result: f64 = signaalinsuodatin::filter::Filter::sinc(0.5);
+    /// assert_eq!(0.6366197723675813430, result);
+    /// ```
     pub fn sinc(x: f64) -> f64 {
         if x == 0.0 {
             return 1.0;
