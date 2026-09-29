@@ -102,7 +102,7 @@ impl Filter {
         let mut ideal: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), length);
         for i in 0.. coefficients.len() {
             let cutoff = cutoff_frequency / sample_rate;
-            let x = (2.0 * cutoff) * Self::sinc(2.0 * cutoff * coefficients[i]);
+            let x = cutoff * Self::sinc(cutoff * coefficients[i]);
             ideal[i] = Complex::new(x, 0.0);
         }
         ideal
