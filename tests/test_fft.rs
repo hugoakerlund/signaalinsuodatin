@@ -233,4 +233,32 @@ mod tests {
         assert_eq!(res5.len(), 524288);
     }
 
+    #[test]
+    fn fft_frequency_bins_are_collected() {
+        let sample_rate: f64 = 44100.0;
+        let fft = fft::FFT::new(1024);
+        let result: Vec<f64> = fft.get_frequency_bins(sample_rate);
+        assert_eq!(0.0, result[0]);
+        assert_eq!(22006.93359375, result[fft.size / 2 - 1]);
+    }
+
+    #[test]
+    fn fft_frequency_magnitudes_are_collected() {
+        let size = 8;
+        let fft = fft::FFT::new(size);
+        let arr: Vec<Complex<f64>> = vec![
+            Complex::new(36.0,  0.0),
+            Complex::new(-4.0,  9.6568542495),
+            Complex::new(-4.0,  4.0),
+            Complex::new(-4.0,  1.6568542495),
+            Complex::new(-4.0,  0.0),
+            Complex::new(-4.0, -1.6568542495),
+            Complex::new(-4.0, -4.0),
+            Complex::new(-4.0, -9.6568542495),
+        ];
+        let result = fft.get_frequency_magnitudes(arr.clone());
+
+        assert_eq!(8, arr.len());
+        assert_eq!(4.5, result[0]);
+    }
 }

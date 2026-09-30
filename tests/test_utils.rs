@@ -77,4 +77,5 @@ mod tests {
         assert_eq!(utils::fft_array_is_symmetrical(arr), true);
         assert_eq!(utils::fft_array_is_symmetrical(arr2), false);
     }
+
 }

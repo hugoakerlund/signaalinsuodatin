@@ -13,8 +13,8 @@ pub struct Filter {
 }
 
 impl Filter {
-    /// Konstruktori luo alipäästösuodattimen ja saa argumentteina ääniraidan pituuden, sen sämpläys
-    /// taajuuden sekä ylärajataajuuden, jota korkeammat taajuudet poistetaan.
+    /// Konstruktori luo alipäästösuodattimen ja saa argumentteina ääniraidan pituuden, sen
+    /// näytteenottotaajuuden sekä ylärajataajuuden, jota korkeammat taajuudet poistetaan.
     ///
     /// # Esimerkit
     /// ```
@@ -36,7 +36,6 @@ impl Filter {
         let fft = fft::FFT::new(length);
 
         // Lasketaan idealisoitu alipäästösuodatin annetun ylärajan ja ääninäytteiden perusteella.
-        println!("\n1/4: Creating filter.");
         let coefficients = Self::create_coefficients(length + 1);
         let ideal = Self::create_ideal(coefficients, cutoff_frequency, sample_rate);
 
@@ -102,7 +101,7 @@ impl Filter {
         let mut ideal: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), length);
         for i in 0.. coefficients.len() {
             let cutoff = cutoff_frequency / sample_rate;
-            let x = cutoff * Self::sinc(cutoff * coefficients[i]);
+            let x = (2.0 * cutoff) * Self::sinc(2.0 * cutoff * coefficients[i]);
             ideal[i] = Complex::new(x, 0.0);
         }
         ideal
@@ -119,7 +118,6 @@ impl Filter {
     pub fn create_frequency_samples(&self) -> Vec<Complex<f64>> {
 
         // Ääninäytteet muunnetaan kompleksinumeroiksi.
-        println!("\n2/4: Converting samples.");
         println!("\t-Converting samples to complex numbers.");
         let mut complex_samples = Self::convert_to_complex_samples(self.samples.clone());
 
@@ -135,7 +133,6 @@ impl Filter {
 
         // Suodatin ja ääninäytteet ovat nyt taajustasossa. Niiden konvoluutio aikatasossa vastaa
         // niiden kertomista keskenään taajuustasossa.
-        println!("\n3/4: Applying filter on samples.");
         let mut filtered = Self::convolve_signals(frequency_samples, self.lpf.clone());
         println!("\t-Filter applied.");
 

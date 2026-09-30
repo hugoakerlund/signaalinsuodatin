@@ -1,4 +1,5 @@
 use num::complex::Complex;
+use crate::{fft, filter};
 
 pub const ROUND_TO_DECIMALS: f64 = 1e10;
 
@@ -79,3 +80,49 @@ pub fn fft_array_is_symmetrical(arr: Vec<Complex<f64>>) -> bool {
     return true;
 }
 
+
+/// Funktio palauttaa taajuuksien voimakkuudet sekä ylärajataajuuden alapuolella että sen
+/// yläpuolella. Ääninäytteet ikkunoidaan ja niille tehdään Fourier-muunnos. Tämän jälkeen
+/// taajuuskorit ja niitä vastaavat voimakkuudet lasketaan. Niiden avulla saadaan summattua
+/// voimakkuudet ylärajataajuuden alapuolella ja yläpuolella.
+pub fn get_magnitudes(samples: Vec<i32>, cutoff_frequency: f64, sample_rate: f64) -> (f64, f64) {
+    let fft = fft::FFT::new(samples.len());
+    let length = samples.len();
+
+    let complex_samples = filter::Filter::convert_to_complex_samples(samples);
+    let hamming: Vec<Complex<f64>> = filter::Filter::create_hamming_window(length);
+    let mut windowed_samples = filter::Filter::convolve_signals(hamming, complex_samples);
+    let sample_frequencies = fft.fft(&mut windowed_samples, false);
+
+    let magnitudes: Vec<f64> = fft.get_frequency_magnitudes(sample_frequencies);
+    let frequency_bins = fft.get_frequency_bins(sample_rate);
+
+    return sum_magnitudes_under_and_over_cutoff(frequency_bins, cutoff_frequency, magnitudes);
+}
+
+/// Funktio summaa taajuuksien voimakkuudet sekä ylärajataajuuden alapuolella että sen yläpuolella.
+/// Tulos palautetaan kaksikkona, jossa ensimmäinen vastaa ylärajataajuuden alapuolella olevien
+/// voimakkuuksien summaa ja toinen sen yläpuolella olevien voimakkuuksien summaa.
+pub fn sum_magnitudes_under_and_over_cutoff(frequency_bins: Vec<f64>, cutoff_frequency: f64, magnitudes: Vec<f64>) -> (f64, f64) {
+    let mut under_cutoff: f64 = 0.0;
+    let mut over_cutoff: f64 = 0.0;
+    let length = frequency_bins.len();
+    let mut i: usize = 0;
+
+    while i < length {
+
+        // Summattaan voimakkuudet ylärajataajuuden yläpuolella, jos indeksi vastaa ylärajataajuutta
+        // suurempia taajuuksia.
+        if cutoff_frequency <= frequency_bins[i] {
+            over_cutoff += magnitudes[i];
+        }
+        // Summattaan voimakkuudet ylärajataajuuden alapuolella, jos indeksi vastaa ylärajataajuutta
+        // pienempiä taajuuksia.
+        else {
+            under_cutoff += magnitudes[i];
+        }
+        i += 1;
+    }
+
+    (under_cutoff, over_cutoff)
+}

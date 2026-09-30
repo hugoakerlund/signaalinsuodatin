@@ -113,4 +113,28 @@ impl FFT {
         }
         result
     }
+
+    /// Metodi palauttaa FFT-taulukon taajuuskorit. FFT-taulukko on symmetrinen, joten vain sen
+    /// toisella puoliskolla on merkitystä. Tulostaulukon indeksiin i lasketaan taajuus, joka vastaa
+    /// FFT-taulukon samaa indeksiä.
+    pub fn get_frequency_bins(&self, sample_rate: f64) -> Vec<f64> {
+        let length: usize = self.size / 2;
+        let mut result: Vec<f64> = std::vec::from_elem(0.0, length);
+        for i in 0 .. length {
+            result[i] = i as f64 * sample_rate / self.size as f64;
+        }
+        result
+    }
+
+    /// Metodi palauttaa taajuuksia vastaavat voimakkuudet. FFT-taulukko on symmetrinen, joten vain
+    /// sen toisella puoliskolla on merkitystä. Metodin laskemat voimakkuudet vastaavat
+    /// taajuuskorien taajuuksia.
+    pub fn get_frequency_magnitudes(&self, arr: Vec<Complex<f64>>) -> Vec<f64> {
+        let mut result: Vec<f64> = std::vec::from_elem(0.0, self.size / 2);
+        for i in 0 .. self.size / 2 {
+            let num = arr[i].norm();
+            result[i] = num / self.size as f64;
+        }
+        result
+    }
 }

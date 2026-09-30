@@ -1,4 +1,4 @@
-use signaalinsuodatin::{filter, io};
+use signaalinsuodatin::{io, wav_filter};
 
 fn main() {
 
@@ -13,20 +13,18 @@ fn main() {
         Ok(args) => {
 
             // Äänitiedosto luetaan levyltä.
+            println!("\n* Reading file:");
             let file = io::read_input_file(&args.input_file);
             let spec = file.spec();
-            let sample_rate = spec.sample_rate as f64;
-            let samples: Vec<i32> = file.into_samples()
-                .map(|r| r.unwrap())
-                .collect();
 
-            // Suodatin luodaan luetun tiedoston ja annetun ylärajataajuuden perusteella.
-            let filter = filter::Filter::new(args.cutoff_frequency, sample_rate, samples);
+            // Luodaan äänitiedoston suodatin.
+            let wav_filter = wav_filter::WAVFilter::new(file, args.cutoff_frequency);
 
-            // Ääninäytteet suodatetaan.
-            let filtered_samples = filter.get_filtered_samples();
+            // Suodatetaan äänitiedosto.
+            let filtered_samples = wav_filter.get_filtered_file();
 
             // Suodatetut ääninäytteet kirjoitetaan levylle.
+            println!("* Writing output file '{}'", args.output_file);
             io::write_output_file(&args.output_file, spec, filtered_samples);
         },
 

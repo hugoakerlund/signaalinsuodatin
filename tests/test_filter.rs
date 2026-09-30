@@ -7,7 +7,7 @@ mod tests {
 
     const SAMPLES_LENGTH: usize = 100;
     const SAMPLE_RATE: f64 = 48000.0;
-    const CUTOFF_FREQUENCY: f64 = 100.0;
+    const CUTOFF_FREQUENCY: f64 = 800.0;
 
     #[test]
     fn coefficients_are_created_correctly() {
@@ -60,6 +60,7 @@ mod tests {
         let filter = filter::Filter::new(CUTOFF_FREQUENCY, SAMPLE_RATE, samples);
         let prepared_samples = filter.create_frequency_samples();
         let filtered_samples = filter.apply_filter(prepared_samples);
+        println!("{:?}", filtered_samples);
         let filtered_sum: i32 = filtered_samples.iter().sum();
 
         assert_eq!(filtered_samples.len(), SAMPLES_LENGTH);
