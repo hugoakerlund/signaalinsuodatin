@@ -1,4 +1,5 @@
 use num::complex::Complex;
+use std::f64::consts::PI;
 use crate::{fft, filter};
 
 pub const ROUND_TO_DECIMALS: f64 = 1e10;
@@ -125,4 +126,23 @@ pub fn sum_magnitudes_under_and_over_cutoff(frequency_bins: Vec<f64>, cutoff_fre
     }
 
     (under_cutoff, over_cutoff)
+}
+
+
+/// Funktio luo annetulle pituudelle ja näytteenottotaajuudelle signaalin, joka sisältää taulukossa
+/// olevat taajuudet. Signaali saadaan luotua yksinkertaisesti summaamalla taajuudet yhteen.
+pub fn generate_signal_of_frequencies(frequencies: Vec<f64>, sample_rate: f64, lenght: usize) -> Vec<i32> {
+    let mut result: Vec<i32> = std::vec::from_elem(0, lenght);
+    let magnifier: f64 = 10.0;
+
+    for freq in frequencies {
+        let phase_inc: f64 = PI * (freq / sample_rate);
+        let mut phase: f64 = 0.0;
+
+        for i in 0 .. lenght {
+            result[i] += (phase.sin() * magnifier) as i32;
+            phase += phase_inc;
+        }
+    }
+    result
 }

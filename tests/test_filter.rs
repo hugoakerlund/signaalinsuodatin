@@ -6,8 +6,8 @@ mod tests {
     use super::*;
 
     const SAMPLES_LENGTH: usize = 100;
-    const SAMPLE_RATE: f64 = 48000.0;
-    const CUTOFF_FREQUENCY: f64 = 800.0;
+    const SAMPLE_RATE: f64 = 44100.0;
+    const CUTOFF_FREQUENCY: f64 = 500.0;
 
     #[test]
     fn coefficients_are_created_correctly() {
@@ -53,19 +53,57 @@ mod tests {
     }
 
     #[test]
-    fn filter_is_applied_to_samples() {
-        let samples: Vec<i32> = std::vec::from_elem(1000, SAMPLES_LENGTH);
-        let samples_sum: i32 = samples.iter().sum();
+    fn higher_frequencies_than_cutoff_are_removed() {
+        let frequencies: Vec<f64> = vec![600.0, 880.0, 1000.0, 12000.0, 20000.0];
 
-        let filter = filter::Filter::new(CUTOFF_FREQUENCY, SAMPLE_RATE, samples);
-        let prepared_samples = filter.create_frequency_samples();
-        let filtered_samples = filter.apply_filter(prepared_samples);
-        println!("{:?}", filtered_samples);
-        let filtered_sum: i32 = filtered_samples.iter().sum();
+        for freq in frequencies {
+            let samples: Vec<i32> = utils::generate_signal_of_frequencies([freq].to_vec(), SAMPLE_RATE, SAMPLES_LENGTH);
+            let filter = filter::Filter::new(CUTOFF_FREQUENCY, SAMPLE_RATE, samples.clone());
+            let filtered_samples = filter.get_filtered_samples();
 
-        assert_eq!(filtered_samples.len(), SAMPLES_LENGTH);
-        assert_eq!(filtered_samples, filter.get_filtered_samples());
-        assert!(filtered_sum < samples_sum);
+            for i in 0 .. filtered_samples.len() {
+                assert!(filtered_samples[i].abs() < 10);
+            }
+        }
+    }
+
+    #[test]
+    fn lower_frequencies_than_cutoff_are_preserved() {
+        let frequencies: Vec<f64> = vec![100.0, 200.0, 300.0, 400.0];
+
+        for freq in frequencies {
+            let samples: Vec<i32> = utils::generate_signal_of_frequencies([freq].to_vec(), SAMPLE_RATE, SAMPLES_LENGTH);
+            let filter = filter::Filter::new(CUTOFF_FREQUENCY, SAMPLE_RATE, samples.clone());
+            let filtered_samples = filter.get_filtered_samples();
+
+            for i in 0 .. filtered_samples.len() {
+                assert!((filtered_samples[i] - samples[i]).abs() < 10);
+            }
+        }
+
+    }
+
+    #[test]
+    fn signal_are_filtered_correctly() {
+
+        let frequencies: Vec<f64> = vec![600.0, 880.0, 1000.0, 12000.0, 20000.0];
+        let base_signal = utils::generate_signal_of_frequencies([440.0].to_vec(), SAMPLE_RATE, SAMPLES_LENGTH);
+
+        for freq in frequencies {
+            let unfiltered_signal = utils::generate_signal_of_frequencies([440.0, freq].to_vec(), SAMPLE_RATE, SAMPLES_LENGTH);
+            let unfiltered_sum: i32 = unfiltered_signal.iter().sum();
+
+            let filter = filter::Filter::new(CUTOFF_FREQUENCY, SAMPLE_RATE, unfiltered_signal.clone());
+            let filtered_signal = filter.get_filtered_samples();
+            let filtered_sum: i32 = filtered_signal.iter().sum();
+
+            assert_eq!(filtered_signal.len(), SAMPLES_LENGTH);
+            assert!(filtered_sum < unfiltered_sum);
+
+            for i in 0 .. base_signal.len() {
+                assert!((base_signal[i] - filtered_signal[i]).abs() < 10);
+            }
+        }
     }
 
     #[test]

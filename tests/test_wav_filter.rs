@@ -33,10 +33,7 @@ mod tests {
         let test_files: Vec<&str> = vec![
             "test_data/sample-3s.wav",
             "test_data/sample-3s-mono.wav",
-            // "test_data/sample-6s.wav",
-            // "test_data/sample-9s.wav",
-            // "test_data/sample-12s.wav",
-            // "test_data/sample-19s.wav",
+            "test_data/sample-6s.wav",
         ];
 
         for file in test_files {
@@ -68,7 +65,7 @@ mod tests {
 
 
             let wav_filter = wav_filter::WAVFilter::new(file_to_filter, CUTOFF_FREQUENCY);
-            let mut filtered_samples = wav_filter.get_filtered_file();
+            let mut filtered_samples = wav_filter.get_filtered_samples();
 
             if channels == 2 {
                 let (left_filtered, _right_filtered): (Vec<i32>, Vec<i32>) = wav_filter::WAVFilter::extract_left_and_right_channels(filtered_samples.clone());

@@ -196,10 +196,12 @@ mod tests {
         let fft = fft::FFT::new(arr.len());
         let result: Vec<Complex<f64>> = fft.fft(&mut arr, false);
 
+        let sum: f64 = (n as f64 * (n as f64 - 1.0)) / 2.0;
         let first_element: Complex<f64> = result[0];
         let middle_element: Complex<f64> = result[n / 2];
 
         assert_eq!(first_element.im, 0.0);
+        assert_eq!(first_element.re, sum);
         assert_eq!(middle_element.im, 0.0);
         assert_eq!(utils::fft_array_is_symmetrical(result), true);()
     }

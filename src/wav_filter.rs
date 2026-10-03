@@ -37,13 +37,13 @@ impl WAVFilter {
 
     /// Metodi suodattaa äänitiedoston ja palauttaa suodatetut ääninäytteet. Mikäli kanavia on
     /// kaksi ne eristetään toisistaan, suodatetaan erikseen ja lopuksi yhdistetään.
-    pub fn get_filtered_file(&self) -> Vec<i32> {
+    pub fn get_filtered_samples(&self) -> Vec<i32> {
         let filtered_samples: Vec<i32>;
 
         if self.channels == 2 {
 
             // Vasen ja oikea kavana erotellaan.
-            println!("\n* Extracting left and right channels:");
+            println!("\n* Extracting left and right channels.");
             let (left, right) = Self::extract_left_and_right_channels(self.samples.clone());
 
             // Vasemmalle kanavalle luodaan oma suodatin.

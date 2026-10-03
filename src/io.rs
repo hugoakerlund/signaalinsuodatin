@@ -12,6 +12,8 @@ pub struct Arguments {
 /// Funktio lukee syöte tiedoston levyltä ja tulostaa tietoja sen spesifikaatiosta. Tiedoston lukija
 /// palautetaan.
 pub fn read_input_file(input_file: &str) -> hound::WavReader<BufReader<File>> {
+    println!("\n* Reading file: '{}'", input_file);
+
     let mut reader = hound::WavReader::open(input_file).unwrap();
     let spec = reader.spec();
 
@@ -34,7 +36,10 @@ pub fn read_input_file(input_file: &str) -> hound::WavReader<BufReader<File>> {
 /// Funktio kirjoittaa tiedoston levylle. Funktio saa argumentteina tiedoston nimen, spesifikaation ja
 /// ääninäytteet.
 pub fn write_output_file(output_file: &str, spec: hound::WavSpec, samples: Vec<i32>) -> () {
+    println!("* Writing output file '{}'", output_file);
+
     let mut writer = hound::WavWriter::create(output_file, spec).unwrap();
+
     for sample in samples {
         writer.write_sample(sample).unwrap();
     }

@@ -1,5 +1,6 @@
 use signaalinsuodatin::{io, wav_filter};
 
+
 fn main() {
 
     // Argumentit luetaan komentoriviltä ja jäsennetään.
@@ -13,7 +14,6 @@ fn main() {
         Ok(args) => {
 
             // Äänitiedosto luetaan levyltä.
-            println!("\n* Reading file:");
             let file = io::read_input_file(&args.input_file);
             let spec = file.spec();
 
@@ -21,11 +21,11 @@ fn main() {
             let wav_filter = wav_filter::WAVFilter::new(file, args.cutoff_frequency);
 
             // Suodatetaan äänitiedosto.
-            let filtered_samples = wav_filter.get_filtered_file();
+            let filtered_samples = wav_filter.get_filtered_samples();
 
             // Suodatetut ääninäytteet kirjoitetaan levylle.
-            println!("* Writing output file '{}'", args.output_file);
             io::write_output_file(&args.output_file, spec, filtered_samples);
+
         },
 
         // Jos argumentit ovat virheelliset, suoritus lopetataan ja käyttöohje tulostetaan.
