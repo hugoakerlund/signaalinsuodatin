@@ -10,6 +10,7 @@ mod tests {
     fn input_file_is_read() {
         let input_file: &str = "test_data/sample-3s.wav";
         let reader = io::read_input_file(input_file);
+
         assert_eq!(reader.spec().channels, 2);
         assert_eq!(reader.spec().sample_rate, 44100);
         assert_eq!(reader.spec().bits_per_sample, 16);

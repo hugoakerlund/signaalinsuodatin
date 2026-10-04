@@ -28,6 +28,7 @@ mod tests {
     fn ideal_filter_is_calculated_correctly() {
         let coefficients: Vec<f64> = filter::Filter::create_coefficients(SAMPLES_LENGTH);
         let ideal: Vec<Complex<f64>> = filter::Filter::create_ideal(coefficients, CUTOFF_FREQUENCY, SAMPLE_RATE);
+
         assert_eq!(ideal.len(), SAMPLES_LENGTH);
         assert_eq!(ideal[0], ideal[SAMPLES_LENGTH-1]);
     }
@@ -36,18 +37,18 @@ mod tests {
     fn low_pass_filter_is_created() {
         let samples: Vec<i32> = std::vec::from_elem(1000, SAMPLES_LENGTH);
         let filter = filter::Filter::new(CUTOFF_FREQUENCY, SAMPLE_RATE, samples);
-
         let lpf = filter.lpf;
+
         assert_eq!(lpf.len(), SAMPLES_LENGTH.next_power_of_two());
-        assert_eq!(utils::fft_array_is_symmetrical(lpf), true);
+        assert!(utils::fft_array_is_symmetrical(lpf));
     }
 
     #[test]
     fn samples_are_prepared_for_filtering() {
         let samples: Vec<i32> = std::vec::from_elem(1000, SAMPLES_LENGTH);
         let filter = filter::Filter::new(CUTOFF_FREQUENCY, SAMPLE_RATE, samples);
-
         let prepared_samples = filter.create_frequency_samples();
+
         assert_eq!(prepared_samples.len(), SAMPLES_LENGTH.next_power_of_two());
     }
 
@@ -84,9 +85,8 @@ mod tests {
 
     #[test]
     fn signal_are_filtered_correctly() {
-
-        let frequencies: Vec<f64> = vec![600.0, 880.0, 1000.0, 12000.0, 20000.0];
         let base_signal = utils::generate_signal_of_frequencies([440.0].to_vec(), SAMPLE_RATE, SAMPLES_LENGTH);
+        let frequencies: Vec<f64> = vec![600.0, 880.0, 1000.0, 12000.0, 20000.0];
 
         for freq in frequencies {
             let unfiltered_signal = utils::generate_signal_of_frequencies([440.0, freq].to_vec(), SAMPLE_RATE, SAMPLES_LENGTH);
@@ -108,6 +108,7 @@ mod tests {
     #[test]
     fn conversion_between_real_and_complex_arrays_works() {
         let real: Vec<i32> = vec![0, 1, 2, 3, 4, 5, 6, 7];
+
         let complex: Vec<Complex<f64>> = vec![
             Complex::new(0.0, 0.0),
             Complex::new(1.0, 0.0),
@@ -118,6 +119,7 @@ mod tests {
             Complex::new(6.0, 0.0),
             Complex::new(7.0, 0.0),
         ];
+
         assert_eq!(signaalinsuodatin::filter::Filter::convert_to_complex_samples(real.clone()), complex);
         assert_eq!(real, signaalinsuodatin::filter::Filter::convert_to_real_samples(complex));
     }
@@ -134,6 +136,7 @@ mod tests {
             Complex::new(7.0, -3.0),
             Complex::new(8.0, -4.0),
         ];
+
         let expected: Vec<Complex<f64>> = vec![
             Complex::new(0.0, 2.0),
             Complex::new(0.0, 8.0),
@@ -144,6 +147,7 @@ mod tests {
             Complex::new(40.0, -42.0),
             Complex::new(48.0, -64.0),
         ];
+
         assert_eq!(signaalinsuodatin::filter::Filter::convolve_signals(arr1.clone(), arr1), expected);
     }
 
@@ -159,6 +163,7 @@ mod tests {
             0.5,
             0.6,
         ];
+
         let expected: Vec<f64> = vec![
             1.0000000000,
             0.0000000000,
@@ -169,6 +174,7 @@ mod tests {
             0.6366197724,
             0.5045511524,
         ];
+
         for i in 0 .. arr.len() {
             assert_eq!(utils::round_float(signaalinsuodatin::filter::Filter::sinc(arr[i])), expected[i]);
         }
@@ -195,5 +201,4 @@ mod tests {
             assert_eq!(utils::round_cmplx(result[i]), expected[i]);
         }
     }
-
 }

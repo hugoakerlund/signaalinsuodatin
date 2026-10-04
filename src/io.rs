@@ -11,6 +11,12 @@ pub struct Arguments {
 
 /// Funktio lukee syöte tiedoston levyltä ja tulostaa tietoja sen spesifikaatiosta. Tiedoston lukija
 /// palautetaan.
+///
+/// # Esimerkit
+/// ```
+/// let file = signaalinsuodatin::io::read_input_file("test_data/sample-3s.wav");
+/// assert_eq!(file.spec().channels, 2);
+/// ```
 pub fn read_input_file(input_file: &str) -> hound::WavReader<BufReader<File>> {
     println!("\n* Reading file: '{}'", input_file);
 
@@ -35,6 +41,24 @@ pub fn read_input_file(input_file: &str) -> hound::WavReader<BufReader<File>> {
 
 /// Funktio kirjoittaa tiedoston levylle. Funktio saa argumentteina tiedoston nimen, spesifikaation ja
 /// ääninäytteet.
+///
+/// # Esimerkit
+/// ```
+/// use std::path::Path;
+/// use std::fs::remove_file;
+///
+/// let samples: Vec<i32> = std::vec::from_elem(1000, 10000);
+///
+/// let spec = hound::WavSpec {
+///     channels: 1,
+///     sample_rate: 44100,
+///     bits_per_sample: 16,
+///     sample_format: hound::SampleFormat::Int,
+/// };
+/// signaalinsuodatin::io::write_output_file("output.wav", spec, samples);
+/// assert!(Path::new("output.wav").exists());
+/// remove_file("output.wav").unwrap();
+/// ```
 pub fn write_output_file(output_file: &str, spec: hound::WavSpec, samples: Vec<i32>) -> () {
     println!("* Writing output file '{}'", output_file);
 
@@ -47,6 +71,19 @@ pub fn write_output_file(output_file: &str, spec: hound::WavSpec, samples: Vec<i
 
 /// Funktio jäsentää komentoriviltä annetut argumentit ja palauttaa tietueen, jos argumentit ovat
 /// oikeanlaiset.
+///
+/// # Esimerkit
+///
+/// ```
+/// let args: Vec<String> = vec![
+/// "./signaalinsuodatin".to_string(),
+/// "--input".to_string(), "input.wav".to_string(),
+/// "--output".to_string(), "output.wav".to_string(),
+/// "--cutoff".to_string(), "1000".to_string()];
+///
+/// let parsed_args = signaalinsuodatin::io::parse_cli_arguments(&args).unwrap();
+/// assert_eq!(parsed_args.cutoff_frequency, 1000.0);
+/// ```
 pub fn parse_cli_arguments(args: &Vec<String>) -> Result<Arguments, &'static str> {
 
     if args.len() != 7 {

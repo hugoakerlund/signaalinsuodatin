@@ -138,11 +138,11 @@ mod tests {
             Complex::new(-1.0, 0.0),
         ];
         let fft = fft::FFT::new(arr.len());
-        let result: Vec<Complex<f64>> = fft.fft(&mut arr.clone(), false);
+        let result: Vec<Complex<f64>> = fft.fft(&mut arr.clone());
         assert_eq!(utils::round_array(result.clone()), expected);
-        assert_eq!(utils::round_array(fft.fft(&mut result.clone(), true)), arr.clone());
+        assert_eq!(utils::round_array(fft.ifft(&mut result.clone())), arr.clone());
 
-        let arr2: Vec<Complex<f64>> = vec![
+            let arr2: Vec<Complex<f64>> = vec![
             Complex::new(1.0, 0.0),
             Complex::new(2.0, 0.0),
             Complex::new(3.0, 0.0),
@@ -155,9 +155,9 @@ mod tests {
             Complex::new(-2.0, -2.0),
         ];
         let fft2 = fft::FFT::new(arr2.len());
-        let result2: Vec<Complex<f64>> = fft2.fft(&mut arr2.clone(), false);
+        let result2: Vec<Complex<f64>> = fft2.fft(&mut arr2.clone());
         assert_eq!(utils::round_array(result2.clone()), expected2);
-        assert_eq!(utils::round_array(fft2.fft(&mut result2.clone(), true)), arr2.clone());
+        assert_eq!(utils::round_array(fft2.ifft(&mut result2.clone())), arr2.clone());
 
         let arr3: Vec<Complex<f64>> = vec![
             Complex::new(1.0, 0.0),
@@ -181,9 +181,9 @@ mod tests {
         ];
 
         let fft3 = fft::FFT::new(arr3.len());
-        let result3: Vec<Complex<f64>> = fft3.fft(&mut arr3.clone(), false);
+        let result3: Vec<Complex<f64>> = fft3.fft(&mut arr3.clone());
         assert_eq!(utils::round_array(result3.clone()), expected3);
-        assert_eq!(utils::round_array(fft3.fft(&mut result3.clone(), true)), arr3.clone());
+        assert_eq!(utils::round_array(fft3.ifft(&mut result3.clone())), arr3.clone());
     }
 
     #[test]
@@ -195,7 +195,7 @@ mod tests {
         }
 
         let fft = fft::FFT::new(arr.len());
-        let result: Vec<Complex<f64>> = fft.fft(&mut arr, false);
+        let result: Vec<Complex<f64>> = fft.fft(&mut arr);
 
         let sum: f64 = (n as f64 * (n as f64 - 1.0)) / 2.0;
         let first_element: Complex<f64> = result[0];
@@ -204,7 +204,7 @@ mod tests {
         assert_eq!(first_element.im, 0.0);
         assert_eq!(first_element.re, sum);
         assert_eq!(middle_element.im, 0.0);
-        assert_eq!(utils::fft_array_is_symmetrical(result), true);()
+        assert!(utils::fft_array_is_symmetrical(result));
     }
 
     #[test]
@@ -212,22 +212,22 @@ mod tests {
 
         let mut arr: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), 1);
         let fft = fft::FFT::new(arr.len());
-        let res = fft.fft(&mut arr, false);
+        let res = fft.fft(&mut arr);
         assert_eq!(res.len(), 1);
 
         let mut arr2: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), 3);
         let fft2 = fft::FFT::new(arr2.len());
-        let res2 = fft2.fft(&mut arr2, false);
+        let res2 = fft2.fft(&mut arr2);
         assert_eq!(res2.len(), 4);
 
         let mut arr3: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), 120);
         let fft3 = fft::FFT::new(arr3.len());
-        let res3 = fft3.fft(&mut arr3, false);
+        let res3 = fft3.fft(&mut arr3);
         assert_eq!(res3.len(), 128);
 
         let mut arr4: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), 1000);
         let fft4 = fft::FFT::new(arr4.len());
-        let res4 = fft4.fft(&mut arr4, false);
+        let res4 = fft4.fft(&mut arr4);
         assert_eq!(res4.len(), 1024);
     }
 

@@ -4,15 +4,19 @@ use num::Complex;
 
 /// Tietue edustaa digitaalista suodatinta.
 pub struct Filter {
+
     /// Alipäästösuodatin on kompleksinumeroista koostuva taulukko.
     pub lpf: Vec<Complex<f64>>,
+
     ///  FFT-oliota käytetään aikatason ja taajuustason välillä tapahtuvaan muuntamiseen.
     pub fft: fft::FFT,
+
     /// Ääninäytteet ovat kokonaisluvuista koostuva taulukko.
     pub samples: Vec<i32>,
 }
 
 impl Filter {
+
     /// Konstruktori luo alipäästösuodattimen ja saa argumentteina ääniraidan pituuden, sen
     /// näytteenottotaajuuden sekä ylärajataajuuden, jota korkeammat taajuudet poistetaan.
     ///
@@ -47,7 +51,7 @@ impl Filter {
 
         // Suodatin muunnetaan aikatasosta taajuustasoon FFT-algoritmilla.
         println!("\t-Converting filter to frequency domain with FFT.");
-        let lpf = fft.fft(&mut filter, false);
+        let lpf = fft.fft(&mut filter);
         println!("\t-Filter created.");
 
         Self {
@@ -123,7 +127,7 @@ impl Filter {
 
         // Ääninäytteet muunnetaan aikatasosta taajuustasoon FFT-algoritmilla.
         println!("\t-Converting samples to frequency domain with FFT.");
-        let frequency_samples = self.fft.fft(&mut complex_samples, false);
+        let frequency_samples = self.fft.fft(&mut complex_samples);
         println!("\t-Samples converted.");
         frequency_samples
     }
@@ -138,7 +142,7 @@ impl Filter {
 
         // Suodatetut ääninäytteet muunnetaan takaisin taajuustasosta aikatasoon.
         println!("\t-Converting filtered samples to time domain with IFFT.");
-        let filtered_samples = self.fft.fft(&mut filtered, true);
+        let filtered_samples = self.fft.ifft(&mut filtered);
 
         // Suodatetut ääninäytteet muunnetaan kompleksinumeroista takaisin kokonaisluvuiksi.
         println!("\t-Converting samples back to real numbers.");

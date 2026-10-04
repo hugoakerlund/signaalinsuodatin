@@ -67,7 +67,7 @@ pub fn round_array(arr: Vec<Complex<f64>>) -> Vec<Complex<f64>> {
 ///     Complex::new(-2.0, 0.0),
 ///     Complex::new(-2.0, -2.0),
 /// ];
-/// assert_eq!(true, signaalinsuodatin::utils::fft_array_is_symmetrical(arr));
+/// assert!(signaalinsuodatin::utils::fft_array_is_symmetrical(arr));
 /// ```
 pub fn fft_array_is_symmetrical(arr: Vec<Complex<f64>>) -> bool {
     let n = arr.len();
@@ -93,7 +93,7 @@ pub fn get_magnitudes(samples: Vec<i32>, cutoff_frequency: f64, sample_rate: f64
     let complex_samples = filter::Filter::convert_to_complex_samples(samples);
     let hamming: Vec<Complex<f64>> = filter::Filter::create_hamming_window(length);
     let mut windowed_samples = filter::Filter::convolve_signals(hamming, complex_samples);
-    let sample_frequencies = fft.fft(&mut windowed_samples, false);
+    let sample_frequencies = fft.fft(&mut windowed_samples);
 
     let magnitudes: Vec<f64> = fft.get_frequency_magnitudes(sample_frequencies);
     let frequency_bins = fft.get_frequency_bins(sample_rate);
@@ -117,6 +117,7 @@ pub fn sum_magnitudes_under_and_over_cutoff(frequency_bins: Vec<f64>, cutoff_fre
         if cutoff_frequency <= frequency_bins[i] {
             over_cutoff += magnitudes[i];
         }
+
         // Summattaan voimakkuudet ylärajataajuuden alapuolella, jos indeksi vastaa ylärajataajuutta
         // pienempiä taajuuksia.
         else {
@@ -130,7 +131,8 @@ pub fn sum_magnitudes_under_and_over_cutoff(frequency_bins: Vec<f64>, cutoff_fre
 
 
 /// Funktio luo annetulle pituudelle ja näytteenottotaajuudelle signaalin, joka sisältää taulukossa
-/// olevat taajuudet. Signaali saadaan luotua yksinkertaisesti summaamalla taajuudet yhteen.
+/// olevat taajuudet. Signaali saadaan luotua yksinkertaisesti summaamalla taajuudet yhteen
+/// taulukkoon.
 pub fn generate_signal_of_frequencies(frequencies: Vec<f64>, sample_rate: f64, lenght: usize) -> Vec<i32> {
     let mut result: Vec<i32> = std::vec::from_elem(0, lenght);
     let magnifier: f64 = 10.0;

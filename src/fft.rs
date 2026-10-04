@@ -3,12 +3,14 @@ use num::complex::Complex;
 
 /// Tietue edustaa FFT-algoritmia.
 pub struct FFT {
+
     /// FFT-algoritmin koko on luonnollinen luku ja se määrittelee pituuden taulukoille, joita
     /// algoritmi käsittelee.
     pub size: usize
 }
 
 impl FFT {
+
     /// Konstruktori luo uuden FFT:n argumenttina annetulle taulukon koolle. Mikäli koko ei ole
     /// kahden potenssi se asetetaan seuraavaan kahden potenssiin.
     ///
@@ -17,7 +19,7 @@ impl FFT {
     /// use num::complex::Complex;
     /// let mut arr: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(1.0, 0.0), 100);
     /// let fft = signaalinsuodatin::fft::FFT::new(arr.len());
-    /// let result = fft.fft(&mut arr, false);
+    /// let result = fft.fft(&mut arr);
     ///
     /// assert_eq!(128, arr.len());
     /// ```
@@ -28,11 +30,18 @@ impl FFT {
         }
     }
 
-    /// Metodi varmistaa, että taulukko on oikean kokoinen täyttämällä sen nollilla FFT:n pituuteen.
-    /// Tämän jälkeen taulukolle tehdään Fourier-muunnos ja se palautetaan.
-    pub fn fft(&self, arr: &mut Vec<Complex<f64>>, inverse: bool) -> Vec<Complex<f64>> {
+    /// Metodi palauttaa taulukon Fourier-muunnoksen. Taulukon pituus varmistetaan oikeaksi
+    /// täyttämällä se nollilla FFT:n pituuteen.
+    pub fn fft(&self, arr: &mut Vec<Complex<f64>>) -> Vec<Complex<f64>> {
         self.pad_with_zeros(arr);
-        return self.radix_2_dit(arr.to_vec(), inverse);
+        return self.radix_2_dit(arr.to_vec(), false);
+    }
+
+    /// Metodi palauttaa taulukon käänteisen Fourier-muunnoksen. Taulukon pituus varmistetaan
+    /// oikeaksi täyttämällä se nollilla FFT:n pituuteen.
+    pub fn ifft(&self, arr: &mut Vec<Complex<f64>>) -> Vec<Complex<f64>> {
+        self.pad_with_zeros(arr);
+        return self.radix_2_dit(arr.to_vec(), true);
     }
 
     /// Metodi täyttää taulukon nollilla FFT:n pituuteen, jotta taulukolle voidaan tehdä Fourier-muunnos.

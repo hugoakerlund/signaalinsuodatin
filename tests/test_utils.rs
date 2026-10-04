@@ -15,6 +15,7 @@ mod tests {
           Complex::new( -2.23933693888498689, 0.0),
           Complex::new(  0.80901699437495652, 0.0),
         ];
+
         let expected: Vec<Complex<f64>> = vec![
           Complex::new(  0.8090169944, 0.0),
           Complex::new(  2.2393369389, 0.0),
@@ -23,6 +24,7 @@ mod tests {
           Complex::new( -2.2393369389, 0.0),
           Complex::new(  0.8090169944, 0.0),
         ];
+
         for i in 0 .. numbers.len() {
             let result = utils::round_cmplx(numbers[i]);
             assert_eq!(expected[i], result);
@@ -39,6 +41,7 @@ mod tests {
           Complex::new( -2.23933693888498689, 0.0),
           Complex::new(  0.80901699437495652, 0.0),
         ];
+
         let expected: Vec<Complex<f64>> = vec![
           Complex::new(  0.8090169944, 0.0),
           Complex::new(  2.2393369389, 0.0),
@@ -47,6 +50,7 @@ mod tests {
           Complex::new( -2.2393369389, 0.0),
           Complex::new(  0.8090169944, 0.0),
         ];
+
         assert_eq!(utils::round_array(numbers), expected);
     }
 
@@ -74,8 +78,7 @@ mod tests {
             Complex::new(2.0,   0.0),
         ];
 
-        assert_eq!(utils::fft_array_is_symmetrical(arr), true);
-        assert_eq!(utils::fft_array_is_symmetrical(arr2), false);
+        assert!(utils::fft_array_is_symmetrical(arr));
+        assert!(!utils::fft_array_is_symmetrical(arr2));
     }
-
 }
