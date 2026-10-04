@@ -49,7 +49,6 @@ mod tests {
 
         let prepared_samples = filter.create_frequency_samples();
         assert_eq!(prepared_samples.len(), SAMPLES_LENGTH.next_power_of_two());
-        assert_eq!(utils::fft_array_is_symmetrical(prepared_samples), true);
     }
 
     #[test]

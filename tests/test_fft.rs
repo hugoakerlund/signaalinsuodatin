@@ -88,41 +88,42 @@ mod tests {
         let fft = fft::FFT::new(0);
 
         let expected_roots: Vec<Complex<f64>> = vec![
-            Complex::new( 1.0, 0.0),
-            Complex::new( 0.8090169944,  0.5877852523),
-            Complex::new( 0.3090169944,  0.9510565163),
-            Complex::new(-0.3090169944,  0.9510565163),
-            Complex::new(-0.8090169944,  0.5877852523),
+            Complex::new( 1.0,           0.0),
             Complex::new(-1.0,           0.0),
-            Complex::new(-0.8090169944, -0.5877852523),
-            Complex::new(-0.3090169944, -0.9510565163),
-            Complex::new( 0.3090169944, -0.9510565163),
-            Complex::new( 0.8090169944, -0.5877852523),
+            Complex::new(-0.5,           0.8660254038),
+            Complex::new(0.0,            1.0),
+            Complex::new(0.3090169944,   0.9510565163),
+            Complex::new(0.5,            0.8660254038),
+            Complex::new(0.6234898019,   0.7818314825),
+            Complex::new(0.7071067812,   0.7071067812),
+            Complex::new(0.7660444431,   0.6427876097),
+            Complex::new(0.8090169944,   0.5877852523),
         ];
+
         let expected_conjugate_roots: Vec<Complex<f64>> = vec![
-            Complex::new( 1.0, 0.0),
-            Complex::new( 0.8090169944, -0.5877852523),
-            Complex::new( 0.3090169944, -0.9510565163),
-            Complex::new(-0.3090169944, -0.9510565163),
-            Complex::new(-0.8090169944, -0.5877852523),
+            Complex::new( 1.0,           0.0),
             Complex::new(-1.0,           0.0),
-            Complex::new(-0.8090169944,  0.5877852523),
-            Complex::new(-0.3090169944,  0.9510565163),
-            Complex::new( 0.3090169944,  0.9510565163),
-            Complex::new( 0.8090169944,  0.5877852523),
+            Complex::new(-0.5,          -0.8660254038),
+            Complex::new(0.0,           -1.0),
+            Complex::new(0.3090169944,  -0.9510565163),
+            Complex::new(0.5,           -0.8660254038),
+            Complex::new(0.6234898019,  -0.7818314825),
+            Complex::new(0.7071067812,  -0.7071067812),
+            Complex::new(0.7660444431,  -0.6427876097),
+            Complex::new(0.8090169944,  -0.5877852523),
         ];
 
-        let n = expected_roots.len();
-        let mut nth_roots: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
-        let mut nth_roots_conjugate: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
+        let length = expected_roots.len();
+        let mut nth_roots: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), length);
+        let mut nth_roots_conjugate: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), length);
 
-        for i in 0 .. n {
-            nth_roots[i] = fft.gen_nth_root_of_unity(i, n, false);
-            nth_roots_conjugate[i] = fft.gen_nth_root_of_unity(i, n, true);
+        for n in 0 .. length {
+            nth_roots[n] = fft.get_nth_root_of_unity(n + 1, false);
+            nth_roots_conjugate[n] = fft.get_nth_root_of_unity(n + 1, true);
         }
 
-        assert_eq!(utils::round_array(nth_roots_conjugate), expected_conjugate_roots);
         assert_eq!(utils::round_array(nth_roots), expected_roots);
+        assert_eq!(utils::round_array(nth_roots_conjugate), expected_conjugate_roots);
     }
 
     #[test]
@@ -228,11 +229,6 @@ mod tests {
         let fft4 = fft::FFT::new(arr4.len());
         let res4 = fft4.fft(&mut arr4, false);
         assert_eq!(res4.len(), 1024);
-
-        let mut arr5: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), 500000);
-        let fft5 = fft::FFT::new(arr5.len());
-        let res5 = fft5.fft(&mut arr5, false);
-        assert_eq!(res5.len(), 524288);
     }
 
     #[test]

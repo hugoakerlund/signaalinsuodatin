@@ -65,11 +65,15 @@ impl FFT {
         // Luodaan taulukko, johon lopuksi saadut tulokset yhdistetään.
         let mut combined: Vec<Complex<f64>> = std::vec::from_elem(Complex::new(0.0, 0.0), n);
 
+        // Lasketaan yksikköjuuret. FFT-algoritmi käyttää yksikköjuuren kompleksikonjugaattia ja
+        // käänteinen FFT-algoritmi ei käytä, minkä takia kolmannen argumentin edessä on negaatio.
+        // Ensimmäinen yksikköjuuri on aina 1 ja sitä päivitetään silmukassa. Tämä säästää aikaa
+        // laskennassa, kun juurta ei tarvitse laskea tyhjästä jokaisella silmukan kierroksella.
+        let mut root: Complex<f64> = Complex::new(1.0, 0.0);
+        let nth_root: Complex<f64> = self.get_nth_root_of_unity(n, !inverse);
+
         for k in 0 .. (n / 2) {
 
-            // Lasketaan yksikköjuuri. FFT-algoritmi käyttää yksikköjuuren kompleksikonjugaattia ja
-            // käänteinen FFT-algoritmi ei käytä, minkä takia kolmannen argumentin edessä on negaatio.
-            let root: Complex<f64> = self.gen_nth_root_of_unity(k, n, !inverse);
 
             // Lasketaan Fourier-muunnokset. Tämän FFT-algoritmin ydin on, että se laskee kaksi n/2
             // kokoista DFT:tä. Saatuja välituloksia käytetään myöhemmin uudelleen, mikä nopeuttaa
@@ -89,6 +93,9 @@ impl FFT {
             // operaation tiedonsiirtokaaviossa ristiin kulkevat nuolet muistuttavat perhosta.
             combined[k] = first_half;
             combined[k + n / 2] = second_half;
+
+            // Päivitetään yksikköjuuri.
+            root *= nth_root;
         }
         combined
     }
@@ -103,10 +110,10 @@ impl FFT {
         return arr.iter().skip(1).step_by(2).copied().collect();
     }
 
-    /// Metodi palauttaa n:nnen yksikköjuuren, jossa k = 0 ... n. Metodi palautaa tarvittaessa myös
-    /// tämän juuren kompleksikonjugaatin.
-    pub fn gen_nth_root_of_unity(&self, k: usize, n: usize, conjugate: bool) -> Complex<f64> {
-        let angle: f64 = (2.0 * PI * k as f64) / n as f64;
+    /// Metodi palauttaa n:nnen yksikköjuuren sekä tarvittaessa myös tämän juuren
+    /// kompleksikonjugaatin.
+    pub fn get_nth_root_of_unity(&self, n: usize, conjugate: bool) -> Complex<f64> {
+        let angle: f64 = (2.0 * PI as f64) / n as f64;
         let result: Complex<f64> = Complex::new(angle.cos(), angle.sin());
         if conjugate {
             return result.conj();
