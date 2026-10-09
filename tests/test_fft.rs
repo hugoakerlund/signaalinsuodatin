@@ -236,8 +236,13 @@ mod tests {
         let sample_rate: f64 = 44100.0;
         let fft = fft::FFT::new(1024);
         let result: Vec<f64> = fft.get_frequency_bins(sample_rate);
+
         assert_eq!(0.0, result[0]);
         assert_eq!(22006.93359375, result[fft.size / 2 - 1]);
+
+        for i in 1 .. result.len() {
+            assert!(result[i-1] < result[i]);
+        }
     }
 
     #[test]
@@ -256,7 +261,7 @@ mod tests {
         ];
         let result = fft.get_frequency_magnitudes(arr.clone());
 
-        assert_eq!(8, arr.len());
+        assert_eq!(size, arr.len());
         assert_eq!(4.5, result[0]);
     }
 }

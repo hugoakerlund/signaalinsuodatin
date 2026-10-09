@@ -20,7 +20,7 @@ Käännetty binääritiedosto on nyt hakemistossa `target/release`.
 
 ## Ohjelman käyttö
 
-Ohjelma hyväksyy seuraavanlaisen syötteen:
+Ohjelma hyväksyy seuraavaa muotoa olevan syötteen:
 
 ```
 --input <input_file> --output <output_file> --cutoff <cutoff_frequency>
@@ -68,7 +68,7 @@ cargo doc --open
 
 ## Testikattavuusraportin luonti
 
-[Testikattavuusraportti](testikattavuus.html) on luotu [cargo-tarpaulin](https://crates.io/crates/cargo-tarpaulin) työkalulla. Uuden rapotin voi luoda seuraavalla komennolla:
+[Testikattavuusraportti](testikattavuus.html) on luotu [cargo-tarpaulin](https://crates.io/crates/cargo-tarpaulin) työkalulla. Uuden raportin voi luoda seuraavalla komennolla:
 ```
 cargo tarpaulin --out html
 ```

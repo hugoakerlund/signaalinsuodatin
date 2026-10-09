@@ -13,6 +13,8 @@ mod tests {
     fn coefficients_are_created_correctly() {
         let size: usize = 8;
         let result: Vec<f64> = filter::Filter::create_coefficients(size);
+        let expected: Vec<f64> = vec![-3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5];
+        assert_eq!(result, expected);
         assert_eq!(result[0], -result[size-1]);
 
         let size2: usize = 20;
@@ -30,7 +32,9 @@ mod tests {
         let ideal: Vec<Complex<f64>> = filter::Filter::create_ideal(coefficients, CUTOFF_FREQUENCY, SAMPLE_RATE);
 
         assert_eq!(ideal.len(), SAMPLES_LENGTH);
-        assert_eq!(ideal[0], ideal[SAMPLES_LENGTH-1]);
+        for i in 1 .. SAMPLES_LENGTH {
+            assert_eq!(ideal[i - 1], ideal[SAMPLES_LENGTH - i]);
+        }
     }
 
     #[test]
@@ -57,7 +61,7 @@ mod tests {
         let frequencies: Vec<f64> = vec![600.0, 880.0, 1000.0, 12000.0, 20000.0];
 
         for freq in frequencies {
-            let samples: Vec<i32> = utils::generate_signal_of_frequencies([freq].to_vec(), SAMPLE_RATE, SAMPLES_LENGTH);
+            let samples: Vec<i32> = utils::generate_signal_of_frequencies([freq].to_vec(), 10.0, SAMPLE_RATE, SAMPLES_LENGTH);
             let filter = filter::Filter::new(CUTOFF_FREQUENCY, SAMPLE_RATE, samples.clone());
             let filtered_samples = filter.get_filtered_samples();
 
@@ -72,7 +76,7 @@ mod tests {
         let frequencies: Vec<f64> = vec![100.0, 200.0, 300.0, 400.0];
 
         for freq in frequencies {
-            let samples: Vec<i32> = utils::generate_signal_of_frequencies([freq].to_vec(), SAMPLE_RATE, SAMPLES_LENGTH);
+            let samples: Vec<i32> = utils::generate_signal_of_frequencies([freq].to_vec(), 10.0, SAMPLE_RATE, SAMPLES_LENGTH);
             let filter = filter::Filter::new(CUTOFF_FREQUENCY, SAMPLE_RATE, samples.clone());
             let filtered_samples = filter.get_filtered_samples();
 
@@ -84,12 +88,12 @@ mod tests {
     }
 
     #[test]
-    fn signal_are_filtered_correctly() {
-        let base_signal = utils::generate_signal_of_frequencies([440.0].to_vec(), SAMPLE_RATE, SAMPLES_LENGTH);
+    fn signals_are_filtered_correctly() {
+        let base_signal = utils::generate_signal_of_frequencies([100.0].to_vec(), 10.0, SAMPLE_RATE, SAMPLES_LENGTH);
         let frequencies: Vec<f64> = vec![600.0, 880.0, 1000.0, 12000.0, 20000.0];
 
         for freq in frequencies {
-            let unfiltered_signal = utils::generate_signal_of_frequencies([440.0, freq].to_vec(), SAMPLE_RATE, SAMPLES_LENGTH);
+            let unfiltered_signal = utils::generate_signal_of_frequencies([100.0, freq].to_vec(), 10.0, SAMPLE_RATE, SAMPLES_LENGTH);
             let unfiltered_sum: i32 = unfiltered_signal.iter().sum();
 
             let filter = filter::Filter::new(CUTOFF_FREQUENCY, SAMPLE_RATE, unfiltered_signal.clone());

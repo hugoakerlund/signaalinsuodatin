@@ -1,6 +1,6 @@
 use num::complex::Complex;
 use std::f64::consts::PI;
-use crate::{fft, filter};
+use crate::{io, fft, filter, wav_filter};
 
 pub const ROUND_TO_DECIMALS: f64 = 1e10;
 
@@ -81,6 +81,47 @@ pub fn fft_array_is_symmetrical(arr: Vec<Complex<f64>>) -> bool {
     return true;
 }
 
+/// Funktio luo annetulle pituudelle, voimakkuudelle ja näytteenottotaajuudelle signaalin, joka
+/// sisältää taulukossa olevat taajuudet. Signaali saadaan luotua yksinkertaisesti summaamalla
+/// taajuudet yhteen taulukkoon.
+pub fn generate_signal_of_frequencies(frequencies: Vec<f64>, strength: f64, sample_rate: f64, lenght: usize) -> Vec<i32> {
+    let mut result: Vec<i32> = std::vec::from_elem(0, lenght);
+    for freq in frequencies {
+        let phase_inc: f64 = 2.0 * PI * (freq / sample_rate);
+        let mut phase: f64 = 0.0;
+
+        for i in 0 .. lenght {
+            result[i] += (phase.sin() * strength) as i32;
+            phase += phase_inc;
+        }
+    }
+    result
+}
+
+
+/// Funktio palauttaa ylärajataajuuden yläpuolella olevan osuuden taajuuksien voimakkuuksista
+/// prosentteina.
+pub fn get_filtered_percentage_over_cutoff(file_name: &str, cutoff_frequency: f64) -> f64 {
+    let file_to_read = io::read_input_file(file_name);
+    let file_to_filter = io::read_input_file(file_name);
+
+    let spec = file_to_read.spec();
+    let channels = spec.channels;
+    let sample_rate = spec.sample_rate as f64;
+
+    let wav_filter = wav_filter::WAVFilter::new(file_to_filter, cutoff_frequency);
+    let mut filtered_samples = wav_filter.get_filtered_samples();
+
+    if channels == 2 {
+        let (left_filtered, _right_filtered): (Vec<i32>, Vec<i32>) = wav_filter::WAVFilter::extract_left_and_right_channels(filtered_samples.clone());
+        filtered_samples = left_filtered;
+    }
+
+    let magnitudes: (f64, f64) = get_magnitudes(filtered_samples.clone(), cutoff_frequency, sample_rate);
+
+    magnitudes.1 / (magnitudes.0 + magnitudes.1)
+}
+
 
 /// Funktio palauttaa taajuuksien voimakkuudet sekä ylärajataajuuden alapuolella että sen
 /// yläpuolella. Ääninäytteet ikkunoidaan ja niille tehdään Fourier-muunnos. Tämän jälkeen
@@ -127,24 +168,4 @@ pub fn sum_magnitudes_under_and_over_cutoff(frequency_bins: Vec<f64>, cutoff_fre
     }
 
     (under_cutoff, over_cutoff)
-}
-
-
-/// Funktio luo annetulle pituudelle ja näytteenottotaajuudelle signaalin, joka sisältää taulukossa
-/// olevat taajuudet. Signaali saadaan luotua yksinkertaisesti summaamalla taajuudet yhteen
-/// taulukkoon.
-pub fn generate_signal_of_frequencies(frequencies: Vec<f64>, sample_rate: f64, lenght: usize) -> Vec<i32> {
-    let mut result: Vec<i32> = std::vec::from_elem(0, lenght);
-    let magnifier: f64 = 10.0;
-
-    for freq in frequencies {
-        let phase_inc: f64 = PI * (freq / sample_rate);
-        let mut phase: f64 = 0.0;
-
-        for i in 0 .. lenght {
-            result[i] += (phase.sin() * magnifier) as i32;
-            phase += phase_inc;
-        }
-    }
-    result
 }

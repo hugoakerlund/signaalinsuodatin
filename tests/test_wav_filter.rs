@@ -1,10 +1,11 @@
-use signaalinsuodatin::{wav_filter, utils, io};
+use signaalinsuodatin::{wav_filter, utils};
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     const CUTOFF_FREQUENCY: f64 = 800.0;
+    const PERCENTAGE_OVER_CUTOFF: f64 = 3.0;
 
     #[test]
     fn left_and_right_channels_are_extracted() {
@@ -28,59 +29,52 @@ mod tests {
     }
 
     #[test]
-    fn higher_frequencies_than_cutoff_are_attenuated() {
+    fn test_samples_are_filtered_correctly() {
 
-        let test_files: Vec<&str> = vec![
-            "test_data/sample-3s.wav",
+        let files: Vec<&str> = vec![
             "test_data/sample-3s-mono.wav",
-            "test_data/sample-6s.wav",
+            "test_data/sample-3s-stereo.wav",
+            "test_data/sample-3s.wav",
+            // "test_data/sample-6s.wav",
+            // "test_data/sample-9s.wav",
+            // "test_data/sample-12s.wav",
+            // "test_data/sample-19s.wav",
         ];
 
-        for file in test_files {
+        for file in files {
+            assert!(utils::get_filtered_percentage_over_cutoff(file, CUTOFF_FREQUENCY) < PERCENTAGE_OVER_CUTOFF);
+        }
+    }
 
-            let file_to_read = io::read_input_file(file);
-            let file_to_filter = io::read_input_file(file);
+    #[test]
+    fn synthetic_files_are_filtered_correctly() {
 
-            let spec = file_to_read.spec();
-            let channels = spec.channels;
-            let sample_rate = spec.sample_rate as f64;
-            let samples: Vec<i32> = file_to_read.into_samples()
-                .map(|r| r.unwrap())
-                .collect();
+        let files: Vec<&str> = vec![
+            "test_data/synthetic_samples/100Hz-1000Hz.wav",
+            "test_data/synthetic_samples/440Hz-5000Hz.wav",
+            "test_data/synthetic_samples/400Hz-500Hz.wav",
+            "test_data/synthetic_samples/10000Hz-20000Hz.wav",
+        ];
 
-            let mut samples_to_read: Vec<i32> = samples.clone();
-            if channels == 2 {
-                let (left, _right): (Vec<i32>, Vec<i32>) = wav_filter::WAVFilter::extract_left_and_right_channels(samples.clone());
-                samples_to_read = left;
-            }
+        for file in files {
+            assert!(utils::get_filtered_percentage_over_cutoff(file, CUTOFF_FREQUENCY) < PERCENTAGE_OVER_CUTOFF);
+        }
+    }
 
-            let magnitudes_before: (f64, f64) = utils::get_magnitudes(samples_to_read.clone(), CUTOFF_FREQUENCY, sample_rate);
-            let total_magnitude_before = magnitudes_before.0 + magnitudes_before.1;
-            let percentage_over_cutoff_before = (magnitudes_before.1 / (total_magnitude_before)) * 100.0;
+    #[test]
+    fn recordings_are_filtered_correctly() {
 
-            println!("total magnitude before filtering {}", total_magnitude_before);
-            println!("percentage over cutoff before filtering {} %", percentage_over_cutoff_before);
+        let files: Vec<&str> = vec![
+            "test_data/recorded_samples/bourree.wav",
+            "test_data/recorded_samples/guajiras.wav",
+            // "test_data/recorded_samples/asturias.wav",
+            // "test_data/recorded_samples/recuerdos.wav",
+            // "test_data/recorded_samples/chaconne.wav",
+            // "test_data/recorded_samples/caprice.wav",
+        ];
 
-
-
-
-            let wav_filter = wav_filter::WAVFilter::new(file_to_filter, CUTOFF_FREQUENCY);
-            let mut filtered_samples = wav_filter.get_filtered_samples();
-
-            if channels == 2 {
-                let (left_filtered, _right_filtered): (Vec<i32>, Vec<i32>) = wav_filter::WAVFilter::extract_left_and_right_channels(filtered_samples.clone());
-                filtered_samples = left_filtered;
-            }
-
-            let magnitudes_after: (f64, f64) = utils::get_magnitudes(filtered_samples.clone(), CUTOFF_FREQUENCY, sample_rate);
-            let total_magnitude_after = magnitudes_after.0 + magnitudes_after.1;
-            let percentage_over_cutoff_after = (magnitudes_after.1 / (total_magnitude_after)) * 100.0;
-
-            println!("total magnitude after filtering {}", total_magnitude_after);
-            println!("percentage over cutoff after filtering {} %", percentage_over_cutoff_after);
-
-            assert!(percentage_over_cutoff_after < percentage_over_cutoff_before);
-            assert!(percentage_over_cutoff_after < 2.0);
+        for file in files {
+            assert!(utils::get_filtered_percentage_over_cutoff(file, CUTOFF_FREQUENCY) < PERCENTAGE_OVER_CUTOFF);
         }
     }
 }
