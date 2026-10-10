@@ -8,8 +8,9 @@ mod tests {
 
     #[test]
     fn input_file_is_read() {
+        let io = io::IO::new();
         let input_file: &str = "test_data/sample-3s.wav";
-        let reader = io::read_input_file(input_file);
+        let reader = io.read_input_file(input_file);
 
         assert_eq!(reader.spec().channels, 2);
         assert_eq!(reader.spec().sample_rate, 44100);
@@ -18,6 +19,7 @@ mod tests {
 
     #[test]
     fn output_file_is_written() {
+        let io = io::IO::new();
         let output_file: &str = "./output.wav";
         if Path::new(output_file).exists() {
             remove_file(output_file).unwrap();
@@ -37,13 +39,14 @@ mod tests {
             samples[i] = (i as u16  % spec.bits_per_sample * 1000) as i32;
         }
 
-        io::write_output_file(output_file, spec, samples);
+        io.write_output_file(output_file, spec, samples);
         assert!(Path::new(output_file).exists());
         remove_file(output_file).unwrap();
     }
 
     #[test]
     fn cli_arguments_are_parsed() {
+        let io = io::IO::new();
         let args: Vec<String> = vec![
             "./signaalinsuodatin".to_string(),
             "--input".to_string(),
@@ -53,7 +56,7 @@ mod tests {
             "--cutoff".to_string(),
             "100".to_string()
         ];
-        let result = io::parse_cli_arguments(&args);
+        let result = io.parse_cli_arguments(&args);
         assert!(result.is_ok());
 
         let args2: Vec<String> = vec![
@@ -64,7 +67,7 @@ mod tests {
             "--cutoff".to_string(),
             "100".to_string()
         ];
-        let result2 = io::parse_cli_arguments(&args2);
+        let result2 = io.parse_cli_arguments(&args2);
         assert!(result2.is_err());
 
         let args3: Vec<String> = vec![
@@ -76,7 +79,7 @@ mod tests {
             "--cutoff".to_string(),
             "-100".to_string()
         ];
-        let result3 = io::parse_cli_arguments(&args3);
+        let result3 = io.parse_cli_arguments(&args3);
         assert!(result3.is_err());
 
         let args4: Vec<String> = vec![
@@ -88,7 +91,7 @@ mod tests {
             "--cutoff".to_string(),
             "100".to_string()
         ];
-        let result4 = io::parse_cli_arguments(&args4);
+        let result4 = io.parse_cli_arguments(&args4);
         assert!(result4.is_err());
     }
 }

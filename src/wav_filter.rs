@@ -59,11 +59,11 @@ impl WAVFilter {
     fn filter_stereo(&self) -> Vec<i32> {
 
         // Vasen ja oikea kavana erotellaan.
-        println!("\n* Extracting left and right channels.");
+        println!("\n* Extracting left and right channels for filtering.");
         let (left, right) = Self::extract_left_and_right_channels(self.samples.clone());
 
         // Vasemmalle kanavalle luodaan oma suodatin.
-        println!("* Creating filter for left channel:");
+        println!("\n* Creating filter for left channel:");
         let left_filter = filter::Filter::new(self.cutoff_frequency, self.sample_rate, left);
 
         // Oikealle kanavalle luodaan oma suodatin.
@@ -79,7 +79,7 @@ impl WAVFilter {
         let right_filtered_samples = right_filter.get_filtered_samples();
 
         // Suodatetut kanavat yhdistetään.
-        println!("\n* Joining left and right channels.");
+        println!("\n* Joining filtered left and right channels.");
         return  Self::join_channels(left_filtered_samples, right_filtered_samples);
     }
 
@@ -87,11 +87,11 @@ impl WAVFilter {
     fn filter_mono(&self) -> Vec<i32> {
 
         // Suodatin luodaan luetun tiedoston ja annetun ylärajataajuuden perusteella.
-        println!("\n* Creating filter");
+        println!("\n* Creating filter.");
         let filter = filter::Filter::new(self.cutoff_frequency, self.sample_rate, self.samples.clone());
 
         // Ääninäytteet suodatetaan.
-        println!("\n* Applying filter samples:");
+        println!("\n* Applying filter on samples:");
         return filter.get_filtered_samples();
     }
 

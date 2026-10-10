@@ -40,6 +40,7 @@ impl Filter {
         let fft = fft::FFT::new(length);
 
         // Lasketaan idealisoitu alipäästösuodatin annetun ylärajan ja ääninäytteiden perusteella.
+        println!("\t-Calculating filter for cutoff frequency {}Hz.", cutoff_frequency);
         let coefficients = Self::create_coefficients(length + 1);
         let ideal = Self::create_ideal(coefficients, cutoff_frequency, sample_rate);
 
@@ -149,6 +150,7 @@ impl Filter {
         let mut new_samples = Self::convert_to_real_samples(filtered_samples);
 
         // Suodatettujen ääninäytteiden vaihe korjataan.
+        println!("\t-Correcting phase of samples.");
         self.correct_samples_phase(&mut new_samples);
 
         // Suodatettujen ääninäytteiden pituus korjataan.

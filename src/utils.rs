@@ -102,8 +102,9 @@ pub fn generate_signal_of_frequencies(frequencies: Vec<f64>, strength: f64, samp
 /// Funktio palauttaa ylärajataajuuden yläpuolella olevan osuuden taajuuksien voimakkuuksista
 /// prosentteina.
 pub fn get_filtered_percentage_over_cutoff(file_name: &str, cutoff_frequency: f64) -> f64 {
-    let file_to_read = io::read_input_file(file_name);
-    let file_to_filter = io::read_input_file(file_name);
+    let io = io::IO::new();
+    let file_to_read = io.read_input_file(file_name);
+    let file_to_filter = io.read_input_file(file_name);
 
     let spec = file_to_read.spec();
     let channels = spec.channels;
